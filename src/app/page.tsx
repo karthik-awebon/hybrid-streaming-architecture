@@ -2,7 +2,7 @@
 
 import { useChat } from '@ai-sdk/react';
 import { useEmbedding } from '@/hooks/useEmbedding';
-import { FormEvent, useState, useCallback } from 'react';
+import { FormEvent, useState, useCallback, useRef, useEffect } from 'react';
 import { Header } from '@/components/Header';
 import { MessageList } from '@/components/MessageList';
 import { ChatInput } from '@/components/ChatInput';
@@ -14,8 +14,21 @@ import { ModelStatus } from '@/components/ModelStatus';
 function useChatLogic() {
   const { isReady, progress, generateEmbedding } = useEmbedding();
   const [input, setInput] = useState('');
+  const [latency, setLatency] = useState<number | null>(null);
+  const startTimeRef = useRef<number | null>(null);
+
   const { messages, sendMessage, status } = useChat();
   const isLoading = status === 'submitted' || status === 'streaming';
+
+  // Effect to capture first chunk arrival
+  useEffect(() => {
+    if (status === 'streaming' && startTimeRef.current && latency === null) {
+      const lastMessage = messages[messages.length - 1];
+      if (lastMessage?.role === 'assistant' && lastMessage.parts && lastMessage.parts.length > 0) {
+        setLatency(performance.now() - startTimeRef.current);
+      }
+    }
+  }, [messages, status, latency]);
 
   const handleSubmit = useCallback(async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -23,6 +36,8 @@ function useChatLogic() {
 
     const userMessageText = input;
     setInput('');
+    setLatency(null);
+    startTimeRef.current = performance.now();
     
     let embedding: number[] = [];
     try {
@@ -47,7 +62,8 @@ function useChatLogic() {
     isLoading,
     isReady,
     progress,
-    handleSubmit
+    handleSubmit,
+    latency
   };
 }
 
@@ -59,7 +75,8 @@ export default function ChatPage() {
     isLoading,
     isReady,
     progress,
-    handleSubmit
+    handleSubmit,
+    latency
   } = useChatLogic();
 
   return (
@@ -68,6 +85,15 @@ export default function ChatPage() {
 
       <main className="flex-1 px-4 py-8 space-y-8 overflow-y-auto mb-32">
         <ModelStatus isReady={isReady} progress={progress} />
+        
+        {latency && (
+          <div className="flex justify-center">
+            <div className="px-3 py-1 bg-slate-100 text-slate-500 text-[10px] font-bold uppercase tracking-widest rounded-full border border-slate-200">
+              TTFT (Total): {latency.toFixed(0)}ms
+            </div>
+          </div>
+        )}
+
         <MessageList messages={messages} isLoading={isLoading} />
       </main>
 

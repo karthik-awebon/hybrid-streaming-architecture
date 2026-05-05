@@ -13,6 +13,11 @@ const nextConfig: NextConfig = {
   },
   // Top-level external packages configuration in Next.js 16+
   serverExternalPackages: ['@xenova/transformers'],
+  experimental: {
+    serverActions: {
+      bodySizeLimit: '2mb',
+    },
+  },
   // Configure webpack to ignore node-specific modules (for non-turbo builds)
   webpack: (config) => {
     config.resolve.alias = {
