@@ -23,7 +23,7 @@ export default function ChatPage() {
       <main className="flex-1 px-4 py-8 space-y-8 overflow-y-auto mb-32">
         <ModelStatus isReady={isReady} progress={progress} />
 
-        <ErrorMessage message={getErrorMessage(error)} className="mx-4" />
+        {error && <ErrorMessage message={getErrorMessage(error)} className="mx-4" />}
 
         {latency && (
           <div className="flex justify-center">
