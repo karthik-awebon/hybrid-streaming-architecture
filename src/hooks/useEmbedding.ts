@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { EmbeddingProgress } from '@/types/embedding';
+import { logger } from '@/utils/logger';
 
 export function useEmbedding() {
   const workerRef = useRef<Worker | null>(null);
@@ -35,7 +36,7 @@ export function useEmbedding() {
             delete resolvesRef.current[id];
             delete rejectsRef.current[id];
           } else {
-            console.error('Worker error:', error);
+            logger.error('Worker error', { error });
           }
         }
       };

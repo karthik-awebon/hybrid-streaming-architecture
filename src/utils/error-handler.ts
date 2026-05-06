@@ -1,9 +1,12 @@
 import { ApiResponse } from './api-response';
+import { logger } from './logger';
 
 /**
  * Standardizes error message extraction from various sources (API responses, Error objects, etc.)
  */
 export function getErrorMessage(error: unknown): string {
+  logger.error('Error encountered', { error });
+
   if (typeof error === 'string') return error;
 
   if (error instanceof Error) {

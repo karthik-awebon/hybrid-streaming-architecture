@@ -6,6 +6,7 @@ import { IngestRecord, IngestStatus, IngestLogic } from '@/types/ingest';
 import { INGEST_CHUNK_SIZE, INGEST_CHUNK_OVERLAP } from '@/constants';
 import { IngestSchema } from '@/schemas/ingest';
 import { getErrorMessage } from '@/utils/error-handler';
+import { logger } from '@/utils/logger';
 
 export function useIngestLogic(): IngestLogic {
   const { isReady, progress, generateEmbedding } = useEmbedding();
@@ -51,7 +52,7 @@ export function useIngestLogic(): IngestLogic {
         records.push({ text: chunk, embedding });
       }
     } catch (err) {
-      console.error('Embedding generation failed:', err);
+      logger.error('Embedding generation failed', err);
       setStatus('error');
       setMessage('Failed to generate embeddings.');
       return;
@@ -72,7 +73,7 @@ export function useIngestLogic(): IngestLogic {
         throw new Error(result.error);
       }
     } catch (err) {
-      console.error('Pinecone upsert failed:', err);
+      logger.error('Pinecone upsert failed', err);
       setStatus('error');
       setMessage(getErrorMessage(err));
     }

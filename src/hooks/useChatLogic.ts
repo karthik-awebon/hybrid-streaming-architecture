@@ -2,6 +2,7 @@ import { useChat } from '@ai-sdk/react';
 import { useEmbedding } from '@/hooks/useEmbedding';
 import { FormEvent, useState, useCallback, useRef, useEffect } from 'react';
 import { ChatLogic } from '@/types/chat';
+import { logger } from '@/utils/logger';
 
 /**
  * Custom hook to encapsulate chat logic and message handling
@@ -39,7 +40,7 @@ export function useChatLogic(): ChatLogic {
       try {
         embedding = await generateEmbedding(userMessageText);
       } catch (err) {
-        console.error('Embedding error:', err);
+        logger.error('Embedding error', err);
       }
 
       await sendMessage(

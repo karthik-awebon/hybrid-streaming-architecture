@@ -5,6 +5,8 @@ import { IngestRecord } from '@/types/ingest';
 import { PINECONE_API_KEY, PINECONE_INDEX } from '@/constants';
 import { IngestRecordsSchema } from '@/schemas/ingest';
 
+import { logger } from '@/utils/logger';
+
 export async function upsertToPinecone(records: IngestRecord[]) {
   try {
     const validation = IngestRecordsSchema.safeParse(records);
@@ -23,7 +25,7 @@ export async function upsertToPinecone(records: IngestRecord[]) {
     const pc = new Pinecone({ apiKey: PINECONE_API_KEY });
     const index = pc.index(PINECONE_INDEX);
 
-    console.log(`[DEBUG] Preparing to upsert ${records.length} records to Pinecone...`);
+    logger.debug(`Preparing to upsert ${records.length} records to Pinecone...`);
 
     const vectors = records.map((record) => ({
       id: crypto.randomUUID(),
@@ -36,10 +38,10 @@ export async function upsertToPinecone(records: IngestRecord[]) {
       records: vectors,
     });
 
-    console.log(`[DEBUG] Successfully upserted ${vectors.length} vectors.`);
+    logger.debug(`Successfully upserted ${vectors.length} vectors.`);
     return { success: true, count: vectors.length };
   } catch (error) {
-    console.error('Pinecone upsert error:', error);
+    logger.error('Pinecone upsert error', error);
     return { success: false, error: (error as Error).message };
   }
 }

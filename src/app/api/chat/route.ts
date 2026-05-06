@@ -4,6 +4,7 @@ import { Pinecone } from '@pinecone-database/pinecone';
 import { ChatRequestSchema } from '@/schemas/chat';
 import { createErrorResponse } from '@/utils/api-response';
 import { ValidationError } from '@/utils/errors';
+import { logger } from '@/utils/logger';
 import {
   PINECONE_API_KEY,
   PINECONE_INDEX,
@@ -33,25 +34,25 @@ export async function POST(req: Request) {
 
     // If an embedding was provided and Pinecone keys exist, perform vector search
     if (embedding && embedding.length > 0 && PINECONE_API_KEY) {
-      console.log(`[DEBUG] Received embedding with length: ${embedding.length}`);
+      logger.debug(`Received embedding with length: ${embedding.length}`);
       try {
         const pc = new Pinecone({ apiKey: PINECONE_API_KEY });
         const index = pc.index(PINECONE_INDEX);
 
-        console.log(`[DEBUG] Querying Pinecone index: ${PINECONE_INDEX}...`);
+        logger.debug(`Querying Pinecone index: ${PINECONE_INDEX}...`);
         const queryResponse = await index.query({
           vector: embedding,
           topK: PINECONE_TOP_K,
           includeMetadata: true,
         });
 
-        console.log(`[DEBUG] Pinecone found ${queryResponse.matches.length} matches.`);
+        logger.debug(`Pinecone found ${queryResponse.matches.length} matches.`);
 
         const contexts = queryResponse.matches
           .map((match, idx) => {
             const text = (match.metadata?.text as string) || '';
-            console.log(
-              `[DEBUG] Match ${idx + 1} score: ${match.score?.toFixed(4)} | Content: ${text.substring(0, 100)}...`
+            logger.debug(
+              `Match ${idx + 1} score: ${match.score?.toFixed(4)} | Content: ${text.substring(0, 100)}...`
             );
             return text;
           })
@@ -60,12 +61,12 @@ export async function POST(req: Request) {
 
         if (contexts) {
           augmentedSystemPrompt += `\n\nUse the following retrieved context to answer the user's question:\n\n${contexts}`;
-          console.log(`[DEBUG] Prompt successfully augmented with context.`);
+          logger.debug(`Prompt successfully augmented with context.`);
         } else {
-          console.log(`[DEBUG] No usable context found in matches.`);
+          logger.debug(`No usable context found in matches.`);
         }
       } catch (pcError) {
-        console.error('Pinecone querying error:', pcError);
+        logger.error('Pinecone querying error', pcError);
         // Continue without context if Pinecone fails (graceful degradation)
       }
     }
@@ -78,7 +79,7 @@ export async function POST(req: Request) {
 
     return result.toUIMessageStreamResponse();
   } catch (error) {
-    console.error('Chat API Error:', error);
+    logger.error('Chat API Error', error);
     return createErrorResponse(error);
   }
 }
