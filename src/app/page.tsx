@@ -30,29 +30,35 @@ function useChatLogic() {
     }
   }, [messages, status, latency]);
 
-  const handleSubmit = useCallback(async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    if (!input.trim() || !isReady || isLoading) return;
+  const handleSubmit = useCallback(
+    async (e: FormEvent<HTMLFormElement>) => {
+      e.preventDefault();
+      if (!input.trim() || !isReady || isLoading) return;
 
-    const userMessageText = input;
-    setInput('');
-    setLatency(null);
-    startTimeRef.current = performance.now();
-    
-    let embedding: number[] = [];
-    try {
-      embedding = await generateEmbedding(userMessageText);
-    } catch (err) {
-      console.error('Embedding error:', err);
-    }
+      const userMessageText = input;
+      setInput('');
+      setLatency(null);
+      startTimeRef.current = performance.now();
 
-    await sendMessage({
-      role: 'user',
-      parts: [{ type: 'text', text: userMessageText }],
-    }, {
-      body: { data: { embedding } }
-    });
-  }, [input, isReady, isLoading, generateEmbedding, sendMessage]);
+      let embedding: number[] = [];
+      try {
+        embedding = await generateEmbedding(userMessageText);
+      } catch (err) {
+        console.error('Embedding error:', err);
+      }
+
+      await sendMessage(
+        {
+          role: 'user',
+          parts: [{ type: 'text', text: userMessageText }],
+        },
+        {
+          body: { data: { embedding } },
+        }
+      );
+    },
+    [input, isReady, isLoading, generateEmbedding, sendMessage]
+  );
 
   return {
     input,
@@ -63,21 +69,13 @@ function useChatLogic() {
     isReady,
     progress,
     handleSubmit,
-    latency
+    latency,
   };
 }
 
 export default function ChatPage() {
-  const {
-    input,
-    setInput,
-    messages,
-    isLoading,
-    isReady,
-    progress,
-    handleSubmit,
-    latency
-  } = useChatLogic();
+  const { input, setInput, messages, isLoading, isReady, progress, handleSubmit, latency } =
+    useChatLogic();
 
   return (
     <div className="flex flex-col w-full max-w-3xl min-h-screen mx-auto bg-white font-sans text-slate-900">
@@ -85,7 +83,7 @@ export default function ChatPage() {
 
       <main className="flex-1 px-4 py-8 space-y-8 overflow-y-auto mb-32">
         <ModelStatus isReady={isReady} progress={progress} />
-        
+
         {latency && (
           <div className="flex justify-center">
             <div className="px-3 py-1 bg-slate-100 text-slate-500 text-[10px] font-bold uppercase tracking-widest rounded-full border border-slate-200">
@@ -97,12 +95,12 @@ export default function ChatPage() {
         <MessageList messages={messages} isLoading={isLoading} />
       </main>
 
-      <ChatInput 
-        input={input} 
-        setInput={setInput} 
-        onSubmit={handleSubmit} 
-        isReady={isReady} 
-        isLoading={isLoading} 
+      <ChatInput
+        input={input}
+        setInput={setInput}
+        onSubmit={handleSubmit}
+        isReady={isReady}
+        isLoading={isLoading}
       />
     </div>
   );

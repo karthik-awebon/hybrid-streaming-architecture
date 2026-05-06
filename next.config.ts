@@ -1,14 +1,14 @@
-import type { NextConfig } from "next";
+import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
   // Top-level turbopack configuration for Next.js 16+
   turbopack: {
     resolveAlias: {
-      "sharp": { browser: "./src/lib/empty.js" },
-      "onnxruntime-node": { browser: "./src/lib/empty.js" },
-      "fs": { browser: "./src/lib/empty.js" },
-      "path": { browser: "./src/lib/empty.js" },
-      "url": { browser: "./src/lib/empty.js" },
+      sharp: { browser: './src/lib/empty.js' },
+      'onnxruntime-node': { browser: './src/lib/empty.js' },
+      fs: { browser: './src/lib/empty.js' },
+      path: { browser: './src/lib/empty.js' },
+      url: { browser: './src/lib/empty.js' },
     },
   },
   // Top-level external packages configuration in Next.js 16+
@@ -22,11 +22,11 @@ const nextConfig: NextConfig = {
   webpack: (config) => {
     config.resolve.alias = {
       ...config.resolve.alias,
-      "sharp$": false,
-      "onnxruntime-node$": false,
-      "fs": false,
-      "path": false,
-      "url": false,
+      sharp$: false,
+      'onnxruntime-node$': false,
+      fs: false,
+      path: false,
+      url: false,
     };
     config.resolve.fallback = {
       ...config.resolve.fallback,

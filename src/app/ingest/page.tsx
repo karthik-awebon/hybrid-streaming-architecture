@@ -39,6 +39,8 @@ export default function IngestPage() {
     try {
       for (let i = 0; i < chunks.length; i++) {
         const chunk = chunks[i];
+        if (chunk === undefined) continue;
+
         setMessage(`Embedding chunk ${i + 1} of ${chunks.length}...`);
         const embedding = await generateEmbedding(chunk);
         records.push({ text: chunk, embedding });
@@ -59,9 +61,7 @@ export default function IngestPage() {
 
       if (result.success) {
         setStatus('success');
-        setMessage(
-          `Successfully inserted ${result.count} vectors into Pinecone.`,
-        );
+        setMessage(`Successfully inserted ${result.count} vectors into Pinecone.`);
         setText(''); // Clear input on success
       } else {
         throw new Error(result.error);
@@ -74,37 +74,31 @@ export default function IngestPage() {
   };
 
   return (
-    <div className='flex flex-col w-full max-w-3xl min-h-screen mx-auto bg-white font-sans text-slate-900'>
+    <div className="flex flex-col w-full max-w-3xl min-h-screen mx-auto bg-white font-sans text-slate-900">
       <Header isReady={isReady} />
 
-      <main className='flex-1 px-4 py-8 space-y-8 mb-12'>
+      <main className="flex-1 px-4 py-8 space-y-8 mb-12">
         <ModelStatus isReady={isReady} progress={progress} />
 
-        <div className='bg-slate-50 p-6 rounded-2xl border border-slate-100 shadow-sm'>
-          <h2 className='text-xl font-semibold mb-4 text-slate-800'>
-            Ingest Data to Pinecone
-          </h2>
-          <p className='text-sm text-slate-500 mb-6'>
-            Paste large text below. It will be chunked, embedded locally in your
-            browser using the lightweight model, and then inserted into your
-            Pinecone index.
+        <div className="bg-slate-50 p-6 rounded-2xl border border-slate-100 shadow-sm">
+          <h2 className="text-xl font-semibold mb-4 text-slate-800">Ingest Data to Pinecone</h2>
+          <p className="text-sm text-slate-500 mb-6">
+            Paste large text below. It will be chunked, embedded locally in your browser using the
+            lightweight model, and then inserted into your Pinecone index.
           </p>
 
           <textarea
-            className='w-full h-64 p-4 text-sm border border-slate-200 rounded-xl bg-white shadow-inner focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-y disabled:opacity-50'
-            placeholder='Paste your document or large text here...'
+            className="w-full h-64 p-4 text-sm border border-slate-200 rounded-xl bg-white shadow-inner focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-y disabled:opacity-50"
+            placeholder="Paste your document or large text here..."
             value={text}
             onChange={(e) => setText(e.target.value)}
             disabled={
-              !isReady ||
-              status === 'chunking' ||
-              status === 'embedding' ||
-              status === 'uploading'
+              !isReady || status === 'chunking' || status === 'embedding' || status === 'uploading'
             }
           />
 
-          <div className='mt-4 flex items-center justify-between'>
-            <div className='text-sm font-medium'>
+          <div className="mt-4 flex items-center justify-between">
+            <div className="text-sm font-medium">
               {status !== 'idle' && (
                 <span
                   className={
@@ -129,7 +123,7 @@ export default function IngestPage() {
                 status === 'embedding' ||
                 status === 'uploading'
               }
-              className='px-6 py-2 bg-blue-600 text-white font-medium rounded-xl hover:bg-blue-700 disabled:bg-slate-200 disabled:text-slate-400 transition-colors'
+              className="px-6 py-2 bg-blue-600 text-white font-medium rounded-xl hover:bg-blue-700 disabled:bg-slate-200 disabled:text-slate-400 transition-colors"
             >
               {status === 'idle' || status === 'success' || status === 'error'
                 ? 'Process & Ingest'

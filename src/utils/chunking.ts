@@ -1,6 +1,6 @@
 export function chunkText(text: string, chunkSize: number = 200, overlap: number = 20): string[] {
   if (!text) return [];
-  
+
   // Split by paragraphs first to try and keep context together
   const paragraphs = text.split(/\n\s*\n/);
   const chunks: string[] = [];
@@ -13,12 +13,12 @@ export function chunkText(text: string, chunkSize: number = 200, overlap: number
       if (currentChunk) {
         chunks.push(currentChunk);
       }
-      
+
       // If a single paragraph is longer than chunk size, split it by words
       if (paragraph.length > chunkSize) {
         const words = paragraph.split(' ');
         let wordChunk = '';
-        
+
         for (const word of words) {
           if ((wordChunk + ' ' + word).length <= chunkSize) {
             wordChunk += (wordChunk ? ' ' : '') + word;
@@ -29,14 +29,14 @@ export function chunkText(text: string, chunkSize: number = 200, overlap: number
               const overlapWords = wordChunk.split(' ').slice(-overlap).join(' ');
               wordChunk = overlapWords + ' ' + word;
             } else {
-               wordChunk = word; // Word is longer than chunk size, just add it
+              wordChunk = word; // Word is longer than chunk size, just add it
             }
           }
         }
         if (wordChunk) {
-            currentChunk = wordChunk;
+          currentChunk = wordChunk;
         } else {
-            currentChunk = '';
+          currentChunk = '';
         }
       } else {
         currentChunk = paragraph;
@@ -48,5 +48,5 @@ export function chunkText(text: string, chunkSize: number = 200, overlap: number
     chunks.push(currentChunk);
   }
 
-  return chunks.map(chunk => chunk.trim()).filter(chunk => chunk.length > 0);
+  return chunks.map((chunk) => chunk.trim()).filter((chunk) => chunk.length > 0);
 }

@@ -4,10 +4,8 @@ export function useEmbedding() {
   const workerRef = useRef<Worker | null>(null);
   const [isReady, setIsReady] = useState(false);
   const [progress, setProgress] = useState<{ file: string; progress: number } | null>(null);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const resolvesRef = useRef<Record<string, (vector: number[]) => void>>({});
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const rejectsRef = useRef<Record<string, (error: any) => void>>({});
+  const rejectsRef = useRef<Record<string, (error: Error) => void>>({});
 
   useEffect(() => {
     if (!workerRef.current) {
@@ -15,10 +13,10 @@ export function useEmbedding() {
       workerRef.current = new Worker(new URL('../lib/embedding-worker.ts', import.meta.url), {
         type: 'module',
       });
-      
+
       workerRef.current.onmessage = (event) => {
         const { status, id, vector, error, file, progress } = event.data;
-        
+
         if (status === 'progress') {
           setProgress({ file, progress });
         } else if (status === 'ready') {
@@ -57,11 +55,11 @@ export function useEmbedding() {
         reject(new Error('Worker not initialized'));
         return;
       }
-      
+
       const id = Math.random().toString(36).substring(7);
       resolvesRef.current[id] = resolve;
       rejectsRef.current[id] = reject;
-      
+
       workerRef.current.postMessage({ action: 'embed', text, id });
     });
   }, []);

@@ -13,6 +13,26 @@
     "isolatedModules": true,
     "jsx": "react-jsx",
     "incremental": true,
+
+    /* 🛡️ Strict Type-Checking */
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "strictFunctionTypes": true,
+    "strictBindCallApply": true,
+    "strictPropertyInitialization": true,
+    "noImplicitThis": true,
+    "useUnknownInCatchVariables": true,
+    "alwaysStrict": true,
+
+    /* 🧹 Code Quality & Safety Checks */
+    "noUnusedLocals": true /* Fails build if variables are defined but unused */,
+    "noUnusedParameters": true /* Fails build if function args are unused */,
+    "noImplicitReturns": true /* Ensures all code paths return a value */,
+    "noFallthroughCasesInSwitch": true /* Prevents accidental switch case fallthroughs */,
+    "noUncheckedIndexedAccess": true /* Crucial: Forces you to check if array[index] exists before using it */,
+    "exactOptionalPropertyTypes": true /* Prevents assigning 'undefined' to optional properties explicitly */,
+    "allowUnreachableCode": false,
+
     "plugins": [
       {
         "name": "next"

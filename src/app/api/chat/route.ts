@@ -13,14 +13,14 @@ export async function POST(req: Request) {
     // Extract client-side generated embedding from custom data
     const embedding = data?.embedding as number[] | undefined;
 
-    let augmentedSystemPrompt = "You are a helpful AI assistant.";
+    let augmentedSystemPrompt = 'You are a helpful AI assistant.';
 
     // If an embedding was provided and Pinecone keys exist, perform vector search
     if (embedding && embedding.length > 0 && process.env.PINECONE_API_KEY) {
       console.log(`[DEBUG] Received embedding with length: ${embedding.length}`);
       try {
         const pc = new Pinecone({ apiKey: process.env.PINECONE_API_KEY });
-        const indexName = process.env.PINECONE_INDEX || 'test-index'; 
+        const indexName = process.env.PINECONE_INDEX || 'test-index';
         const index = pc.index(indexName);
 
         console.log(`[DEBUG] Querying Pinecone index: ${indexName}...`);
@@ -34,8 +34,10 @@ export async function POST(req: Request) {
 
         const contexts = queryResponse.matches
           .map((match, idx) => {
-            const text = match.metadata?.text as string || '';
-            console.log(`[DEBUG] Match ${idx + 1} score: ${match.score?.toFixed(4)} | Content: ${text.substring(0, 100)}...`);
+            const text = (match.metadata?.text as string) || '';
+            console.log(
+              `[DEBUG] Match ${idx + 1} score: ${match.score?.toFixed(4)} | Content: ${text.substring(0, 100)}...`
+            );
             return text;
           })
           .filter(Boolean)
@@ -47,7 +49,8 @@ export async function POST(req: Request) {
         } else {
           console.log(`[DEBUG] No usable context found in matches.`);
         }
-      } catch (pcError) {        console.error('Pinecone querying error:', pcError);
+      } catch (pcError) {
+        console.error('Pinecone querying error:', pcError);
         // Continue without context if Pinecone fails (graceful degradation)
       }
     }
