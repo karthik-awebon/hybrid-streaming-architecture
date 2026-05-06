@@ -1,11 +1,7 @@
 'use server';
 
 import { Pinecone } from '@pinecone-database/pinecone';
-
-export type IngestRecord = {
-  text: string;
-  embedding: number[];
-};
+import { IngestRecord } from '@/types/ingest';
 
 export async function upsertToPinecone(records: IngestRecord[]) {
   try {

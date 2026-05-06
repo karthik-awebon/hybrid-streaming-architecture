@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
+import { EmbeddingProgress } from '@/types/embedding';
 
 export function useEmbedding() {
   const workerRef = useRef<Worker | null>(null);
   const [isReady, setIsReady] = useState(false);
-  const [progress, setProgress] = useState<{ file: string; progress: number } | null>(null);
+  const [progress, setProgress] = useState<EmbeddingProgress | null>(null);
   const resolvesRef = useRef<Record<string, (vector: number[]) => void>>({});
   const rejectsRef = useRef<Record<string, (error: Error) => void>>({});
 

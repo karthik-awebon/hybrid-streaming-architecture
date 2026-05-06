@@ -1,12 +1,4 @@
-import { FormEvent } from 'react';
-
-interface ChatInputProps {
-  input: string;
-  setInput: (value: string) => void;
-  onSubmit: (e: FormEvent<HTMLFormElement>) => void;
-  isReady: boolean;
-  isLoading: boolean;
-}
+import { ChatInputProps } from '@/types/components';
 
 export function ChatInput({ input, setInput, onSubmit, isReady, isLoading }: ChatInputProps) {
   return (

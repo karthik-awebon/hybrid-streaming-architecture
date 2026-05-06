@@ -1,17 +1,18 @@
 import { openai } from '@ai-sdk/openai';
 import { convertToModelMessages, streamText } from 'ai';
 import { Pinecone } from '@pinecone-database/pinecone';
+import { ChatRequestBody } from '@/types/api';
 
 // Allow streaming responses up to 30 seconds
 export const maxDuration = 30;
 
 export async function POST(req: Request) {
   try {
-    const body = await req.json();
+    const body: ChatRequestBody = await req.json();
     const { messages, data } = body;
 
     // Extract client-side generated embedding from custom data
-    const embedding = data?.embedding as number[] | undefined;
+    const embedding = data?.embedding;
 
     let augmentedSystemPrompt = 'You are a helpful AI assistant.';
 

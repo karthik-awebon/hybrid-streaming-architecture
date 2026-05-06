@@ -5,14 +5,13 @@ import { useEmbedding } from '@/hooks/useEmbedding';
 import { Header } from '@/components/Header';
 import { ModelStatus } from '@/components/ModelStatus';
 import { chunkText } from '@/utils/chunking';
-import { upsertToPinecone, IngestRecord } from '@/actions/ingest';
+import { upsertToPinecone } from '@/actions/ingest';
+import { IngestRecord, IngestStatus } from '@/types/ingest';
 
 export default function IngestPage() {
   const { isReady, progress, generateEmbedding } = useEmbedding();
   const [text, setText] = useState('');
-  const [status, setStatus] = useState<
-    'idle' | 'chunking' | 'embedding' | 'uploading' | 'success' | 'error'
-  >('idle');
+  const [status, setStatus] = useState<IngestStatus>('idle');
   const [message, setMessage] = useState('');
 
   const handleIngest = async () => {

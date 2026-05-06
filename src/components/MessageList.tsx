@@ -1,10 +1,5 @@
-import { UIMessage } from 'ai';
 import { MessageItem } from './MessageItem';
-
-interface MessageListProps {
-  messages: UIMessage[];
-  isLoading: boolean;
-}
+import { MessageListProps } from '@/types/components';
 
 export function MessageList({ messages, isLoading }: MessageListProps) {
   if (messages.length === 0) {

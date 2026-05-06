@@ -1,17 +1,9 @@
 import { pipeline, env } from '@xenova/transformers';
+import { ProgressCallback } from '@/types/embedding';
 
 // Skip local model check since we are running in browser
 env.allowLocalModels = false;
 env.useBrowserCache = true;
-
-type ProgressCallback = (progress: {
-  status: string;
-  name: string;
-  file: string;
-  progress: number;
-  loaded: number;
-  total: number;
-}) => void;
 
 class PipelineSingleton {
   static task = 'feature-extraction' as const;

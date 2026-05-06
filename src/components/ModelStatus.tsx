@@ -1,7 +1,4 @@
-interface ModelStatusProps {
-  isReady: boolean;
-  progress: { file: string; progress: number } | null;
-}
+import { ModelStatusProps } from '@/types/components';
 
 export function ModelStatus({ isReady, progress }: ModelStatusProps) {
   if (isReady || !progress) return null;

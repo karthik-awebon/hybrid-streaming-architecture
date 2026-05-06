@@ -1,8 +1,4 @@
-import { UIMessage } from 'ai';
-
-interface MessageItemProps {
-  message: UIMessage;
-}
+import { MessageItemProps } from '@/types/components';
 
 export function MessageItem({ message }: MessageItemProps) {
   const isUser = message.role === 'user';

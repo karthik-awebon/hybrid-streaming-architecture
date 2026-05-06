@@ -1,9 +1,6 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-
-interface HeaderProps {
-  isReady: boolean;
-}
+import { HeaderProps } from '@/types/components';
 
 export function Header({ isReady }: HeaderProps) {
   const pathname = usePathname();

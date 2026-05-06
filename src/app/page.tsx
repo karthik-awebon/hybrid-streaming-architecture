@@ -7,11 +7,12 @@ import { Header } from '@/components/Header';
 import { MessageList } from '@/components/MessageList';
 import { ChatInput } from '@/components/ChatInput';
 import { ModelStatus } from '@/components/ModelStatus';
+import { ChatLogic } from '@/types/chat';
 
 /**
  * Custom hook to encapsulate chat logic and message handling
  */
-function useChatLogic() {
+function useChatLogic(): ChatLogic {
   const { isReady, progress, generateEmbedding } = useEmbedding();
   const [input, setInput] = useState('');
   const [latency, setLatency] = useState<number | null>(null);
