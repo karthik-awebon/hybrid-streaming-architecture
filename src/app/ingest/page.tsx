@@ -8,6 +8,7 @@ import { chunkText } from '@/utils/chunking';
 import { upsertToPinecone } from '@/actions/ingest';
 import { IngestRecord, IngestStatus } from '@/types/ingest';
 import { INGEST_CHUNK_SIZE, INGEST_CHUNK_OVERLAP } from '@/constants';
+import { IngestSchema } from '@/schemas/ingest';
 
 export default function IngestPage() {
   const { isReady, progress, generateEmbedding } = useEmbedding();
@@ -16,7 +17,14 @@ export default function IngestPage() {
   const [message, setMessage] = useState('');
 
   const handleIngest = async () => {
-    if (!text.trim() || !isReady) return;
+    const validation = IngestSchema.safeParse({ text });
+    if (!validation.success) {
+      setStatus('error');
+      setMessage(validation.error.issues[0]?.message || 'Invalid input');
+      return;
+    }
+
+    if (!isReady) return;
 
     setStatus('chunking');
     setMessage('Chunking text...');

@@ -1,8 +1,4 @@
-import { UIMessage } from 'ai';
+import { z } from 'zod';
+import { ChatRequestSchema } from '@/schemas/chat';
 
-export interface ChatRequestBody {
-  messages: UIMessage[];
-  data?: {
-    embedding?: number[];
-  };
-}
+export type ChatRequestBody = z.infer<typeof ChatRequestSchema>;

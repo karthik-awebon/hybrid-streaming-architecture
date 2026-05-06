@@ -1,7 +1,7 @@
 import { openai } from '@ai-sdk/openai';
 import { convertToModelMessages, streamText } from 'ai';
 import { Pinecone } from '@pinecone-database/pinecone';
-import { ChatRequestBody } from '@/types/api';
+import { ChatRequestSchema } from '@/schemas/chat';
 import {
   PINECONE_API_KEY,
   PINECONE_INDEX,
@@ -15,8 +15,20 @@ export const maxDuration = API_MAX_DURATION;
 
 export async function POST(req: Request) {
   try {
-    const body: ChatRequestBody = await req.json();
-    const { messages, data } = body;
+    const json = await req.json();
+    const parseResult = ChatRequestSchema.safeParse(json);
+
+    if (!parseResult.success) {
+      return new Response(
+        JSON.stringify({ error: 'Invalid request data', details: parseResult.error.format() }),
+        {
+          status: 400,
+          headers: { 'Content-Type': 'application/json' },
+        }
+      );
+    }
+
+    const { messages, data } = parseResult.data;
 
     // Extract client-side generated embedding from custom data
     const embedding = data?.embedding;

@@ -3,9 +3,15 @@
 import { Pinecone } from '@pinecone-database/pinecone';
 import { IngestRecord } from '@/types/ingest';
 import { PINECONE_API_KEY, PINECONE_INDEX } from '@/constants';
+import { IngestRecordsSchema } from '@/schemas/ingest';
 
 export async function upsertToPinecone(records: IngestRecord[]) {
   try {
+    const validation = IngestRecordsSchema.safeParse(records);
+    if (!validation.success) {
+      return { success: false, error: 'Invalid record format' };
+    }
+
     if (!PINECONE_API_KEY) {
       throw new Error('PINECONE_API_KEY is not set');
     }
