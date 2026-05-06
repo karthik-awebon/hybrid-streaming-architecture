@@ -1,36 +1,102 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Hybrid Streaming RAG Architecture
 
-## Getting Started
+A modern, high-performance Next.js application demonstrating a **Hybrid Retrieval-Augmented Generation (RAG)** architecture. This project combines local browser-side embedding generation with remote vector search and streaming LLM responses.
 
-First, run the development server:
+## 🚀 Key Features
+
+- **Hybrid RAG Workflow:** Generates embeddings locally in the browser using `Transformers.js` to reduce server load and improve privacy.
+- **Real-time Streaming:** Seamlessly streams AI responses using the Vercel AI SDK.
+- **Vector Search:** Integrated with Pinecone for efficient context retrieval.
+- **Dedicated Logging:** Centralized logging utility for consistent traceability across client and server.
+- **Robust Testing:** Comprehensive test suite including Unit (Vitest), Integration, and End-to-End (Playwright) tests.
+- **Type Safety:** Built with Strict TypeScript and Zod for runtime schema validation.
+
+## 🛠️ Tech Stack
+
+- **Framework:** Next.js 15+ (App Router)
+- **Styling:** Tailwind CSS 4
+- **AI Integration:** Vercel AI SDK, OpenAI
+- **Embeddings:** Transformers.js (`Xenova/all-MiniLM-L6-v2`)
+- **Database:** Pinecone (Vector Database)
+- **Validation:** Zod
+- **Testing:** Vitest, Playwright, Testing Library
+- **Tooling:** ESLint, Prettier, Husky, Lint-staged
+
+## 📦 Getting Started
+
+### Prerequisites
+
+- Node.js 20+
+- NPM / PNPM / Bun
+- Pinecone API Key
+- OpenAI API Key
+
+### Installation
+
+1. Clone the repository:
+
+   ```bash
+   git clone https://github.com/your-repo/hybrid-streaming-architecture.git
+   cd hybrid-streaming-architecture
+   ```
+
+2. Install dependencies:
+
+   ```bash
+   npm install
+   ```
+
+3. Configure environment variables:
+   Create a `.env.local` file in the root directory:
+
+   ```env
+   OPENAI_API_KEY=your_openai_key
+   PINECONE_API_KEY=your_pinecone_key
+   PINECONE_INDEX=your_index_name
+
+   # Optional overrides
+   NEXT_PUBLIC_LOG_LEVEL=debug
+   ```
+
+### Running the Project
 
 ```bash
+# Start development server
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+
+# Build for production
+npm run build
+
+# Start production server
+npm run start
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 🧪 Testing & Quality
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+# Run unit and integration tests
+npm test
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+# Run unit tests in watch mode
+npm run test:watch
 
-## Learn More
+# Run end-to-end tests
+npm run test:e2e
 
-To learn more about Next.js, take a look at the following resources:
+# Run type-checking
+npm run type-check
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+# Lint the codebase
+npm run lint
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## 📐 Architecture Overview
 
-## Deploy on Vercel
+1.  **Ingestion:** Text is chunked, embedded locally via Web Workers (Transformers.js), and upserted to Pinecone via Next.js Server Actions.
+2.  **Retrieval:** When a user sends a message, a local embedding is generated and sent to the `/api/chat` route.
+3.  **Augmentation:** The server queries Pinecone using the provided embedding to find relevant context.
+4.  **Generation:** The system prompt is augmented with context, and the response is streamed back to the user using OpenAI.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## 📄 License
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+MIT
