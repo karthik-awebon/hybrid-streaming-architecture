@@ -1,5 +1,14 @@
 import { DEFAULT_CHUNK_SIZE, DEFAULT_CHUNK_OVERLAP } from '@/constants';
 
+/**
+ * Splits a long text into smaller chunks for processing.
+ * Tries to preserve paragraph boundaries where possible.
+ *
+ * @param text - The raw text content to chunk.
+ * @param chunkSize - The maximum size of each chunk.
+ * @param overlap - The number of characters/words to overlap between chunks (basic implementation).
+ * @returns An array of string chunks.
+ */
 export function chunkText(
   text: string,
   chunkSize: number = DEFAULT_CHUNK_SIZE,

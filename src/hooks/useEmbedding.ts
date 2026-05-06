@@ -2,6 +2,15 @@ import { useEffect, useRef, useState, useCallback } from 'react';
 import { EmbeddingProgress } from '@/types/embedding';
 import { logger } from '@/utils/logger';
 
+/**
+ * Custom hook to manage the local embedding model running in a Web Worker.
+ * Handles worker initialization, progress tracking, and embedding generation.
+ *
+ * @returns An object containing:
+ * - isReady: Whether the model is fully loaded and ready to process text.
+ * - progress: Current loading progress of the model.
+ * - generateEmbedding: Function to request an embedding for a given string.
+ */
 export function useEmbedding() {
   const workerRef = useRef<Worker | null>(null);
   const [isReady, setIsReady] = useState(false);
@@ -51,6 +60,12 @@ export function useEmbedding() {
     };
   }, []);
 
+  /**
+   * Generates a vector embedding for the provided text using the local worker.
+   *
+   * @param text - The text content to embed.
+   * @returns A promise that resolves to an array of numbers representing the vector.
+   */
   const generateEmbedding = useCallback((text: string): Promise<number[]> => {
     return new Promise((resolve, reject) => {
       if (!workerRef.current) {

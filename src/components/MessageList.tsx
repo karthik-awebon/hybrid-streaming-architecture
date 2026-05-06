@@ -1,6 +1,10 @@
 import { MessageItem } from './MessageItem';
 import { MessageListProps } from '@/types/components';
 
+/**
+ * Component that renders a list of chat messages and a loading state.
+ * Displays a welcome message if no messages are present.
+ */
 export function MessageList({ messages, isLoading }: MessageListProps) {
   if (messages.length === 0) {
     return (

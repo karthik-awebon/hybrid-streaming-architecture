@@ -5,6 +5,10 @@ import { Header } from '@/components/Header';
 import { ModelStatus } from '@/components/ModelStatus';
 import { ErrorMessage } from '@/components/ErrorMessage';
 
+/**
+ * Page component for ingesting raw text into the Pinecone vector database.
+ * Handles the UI for pasting text and monitoring the ingestion progress.
+ */
 export default function IngestPage() {
   const { text, setText, status, message, isReady, progress, handleIngest } = useIngestLogic();
 

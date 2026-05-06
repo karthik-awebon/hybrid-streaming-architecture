@@ -7,6 +7,13 @@ import { IngestRecordsSchema } from '@/schemas/ingest';
 
 import { logger } from '@/utils/logger';
 
+/**
+ * Server Action to upsert generated embeddings and text metadata into Pinecone.
+ * Validates the input records before processing.
+ *
+ * @param records - Array of records containing text and its corresponding vector embedding.
+ * @returns A promise that resolves to an object indicating success and the count of upserted vectors, or an error message.
+ */
 export async function upsertToPinecone(records: IngestRecord[]) {
   try {
     const validation = IngestRecordsSchema.safeParse(records);

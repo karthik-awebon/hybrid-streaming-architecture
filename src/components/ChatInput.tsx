@@ -1,5 +1,8 @@
 import { ChatInputProps } from '@/types/components';
 
+/**
+ * Chat input component with form handling and local model status awareness.
+ */
 export function ChatInput({ input, setInput, onSubmit, isReady, isLoading }: ChatInputProps) {
   return (
     <footer className="fixed bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-white via-white to-transparent">

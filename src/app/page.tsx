@@ -8,6 +8,10 @@ import { ModelStatus } from '@/components/ModelStatus';
 import { ErrorMessage } from '@/components/ErrorMessage';
 import { getErrorMessage } from '@/utils/error-handler';
 
+/**
+ * Main chat page component.
+ * Provides the interface for interacting with the AI using local embeddings for RAG.
+ */
 export default function ChatPage() {
   const { input, setInput, messages, isLoading, isReady, progress, handleSubmit, latency, error } =
     useChatLogic();

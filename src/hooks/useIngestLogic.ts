@@ -8,12 +8,25 @@ import { IngestSchema } from '@/schemas/ingest';
 import { getErrorMessage } from '@/utils/error-handler';
 import { logger } from '@/utils/logger';
 
+/**
+ * Custom hook to manage the ingestion process.
+ * Orchestrates text chunking, local embedding generation, and server-side vector storage.
+ *
+ * @returns An object conforming to the IngestLogic interface.
+ */
 export function useIngestLogic(): IngestLogic {
   const { isReady, progress, generateEmbedding } = useEmbedding();
   const [text, setText] = useState('');
   const [status, setStatus] = useState<IngestStatus>('idle');
   const [message, setMessage] = useState('');
 
+  /**
+   * Orchestrates the full ingestion workflow:
+   * 1. Validates input.
+   * 2. Chunks the text.
+   * 3. Generates embeddings for each chunk locally.
+   * 4. Uploads embeddings and text to the vector database.
+   */
   const handleIngest = async () => {
     const validation = IngestSchema.safeParse({ text });
     if (!validation.success) {

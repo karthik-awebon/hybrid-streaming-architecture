@@ -13,9 +13,22 @@ import {
   API_MAX_DURATION,
 } from '@/constants';
 
-// Allow streaming responses up to configured seconds
+/**
+ * Configure the maximum duration for the streaming response.
+ */
 export const maxDuration = API_MAX_DURATION;
 
+/**
+ * POST handler for the chat API route.
+ * Orchestrates the RAG workflow:
+ * 1. Validates the incoming chat request.
+ * 2. Uses the provided client-side embedding to query Pinecone for relevant context.
+ * 3. Augments the system prompt with retrieved context.
+ * 4. Streams the AI response using the configured LLM.
+ *
+ * @param req - The incoming Request object.
+ * @returns A streaming response for the AI SDK client.
+ */
 export async function POST(req: Request) {
   try {
     const json = await req.json();

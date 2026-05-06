@@ -2,6 +2,9 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { HeaderProps } from '@/types/components';
 
+/**
+ * Application header component containing navigation and model status indicator.
+ */
 export function Header({ isReady }: HeaderProps) {
   const pathname = usePathname();
 

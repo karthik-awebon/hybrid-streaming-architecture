@@ -1,5 +1,8 @@
 import { MessageItemProps } from '@/types/components';
 
+/**
+ * Component that renders an individual chat message, styled based on the sender (user vs. assistant).
+ */
 export function MessageItem({ message }: MessageItemProps) {
   const isUser = message.role === 'user';
 

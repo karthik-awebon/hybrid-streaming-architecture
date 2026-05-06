@@ -1,11 +1,17 @@
 import { z } from 'zod';
 
+/**
+ * Zod schema for a part of a UI message.
+ */
 export const MessagePartSchema = z.object({
   type: z.enum(['text', 'image', 'tool-call', 'tool-result']),
   text: z.string().optional(),
   // Add other parts if needed for complex AI SDK messages
 });
 
+/**
+ * Zod schema for a UI message in the chat.
+ */
 export const UIMessageSchema = z.object({
   id: z.string().optional(),
   role: z.enum(['user', 'assistant', 'system', 'data']),
@@ -14,6 +20,9 @@ export const UIMessageSchema = z.object({
   createdAt: z.date().optional(),
 });
 
+/**
+ * Zod schema for the chat request body.
+ */
 export const ChatRequestSchema = z.object({
   messages: z.array(z.any()), // Validating array of messages
   data: z
@@ -23,4 +32,7 @@ export const ChatRequestSchema = z.object({
     .optional(),
 });
 
+/**
+ * Type inferred from the ChatRequestSchema.
+ */
 export type ChatRequest = z.infer<typeof ChatRequestSchema>;

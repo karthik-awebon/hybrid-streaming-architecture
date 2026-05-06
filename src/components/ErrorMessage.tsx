@@ -1,8 +1,16 @@
+/**
+ * Props for the ErrorMessage component.
+ */
 interface ErrorMessageProps {
+  /** The error message to display. If null, the component returns null. */
   message: string | null;
+  /** Optional additional CSS classes for styling. */
   className?: string;
 }
 
+/**
+ * A standard error message display component with an icon.
+ */
 export function ErrorMessage({ message, className = '' }: ErrorMessageProps) {
   if (!message) return null;
 

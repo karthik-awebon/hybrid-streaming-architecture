@@ -1,5 +1,8 @@
 import { ModelStatusProps } from '@/types/components';
 
+/**
+ * Component that displays the loading status and progress of the local embedding model.
+ */
 export function ModelStatus({ isReady, progress }: ModelStatusProps) {
   if (isReady || !progress) return null;
 

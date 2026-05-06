@@ -5,7 +5,10 @@ import { ChatLogic } from '@/types/chat';
 import { logger } from '@/utils/logger';
 
 /**
- * Custom hook to encapsulate chat logic and message handling
+ * Custom hook to encapsulate chat logic, including message handling and local embedding generation.
+ * This hook integrates with the AI SDK and the local embedding worker.
+ *
+ * @returns An object conforming to the ChatLogic interface.
  */
 export function useChatLogic(): ChatLogic {
   const { isReady, progress, generateEmbedding } = useEmbedding();
@@ -26,6 +29,12 @@ export function useChatLogic(): ChatLogic {
     }
   }, [messages, status, latency]);
 
+  /**
+   * Handles the form submission for the chat.
+   * Generates a local embedding for the user's query before sending it to the server.
+   *
+   * @param e - The form event.
+   */
   const handleSubmit = useCallback(
     async (e: FormEvent<HTMLFormElement>) => {
       e.preventDefault();
