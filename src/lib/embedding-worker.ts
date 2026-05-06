@@ -1,13 +1,14 @@
 import { pipeline, env } from '@xenova/transformers';
 import { ProgressCallback } from '@/types/embedding';
+import { LOCAL_EMBEDDING_MODEL, LOCAL_EMBEDDING_TASK } from '@/constants';
 
 // Skip local model check since we are running in browser
 env.allowLocalModels = false;
 env.useBrowserCache = true;
 
 class PipelineSingleton {
-  static task = 'feature-extraction' as const;
-  static model = 'Xenova/all-MiniLM-L6-v2';
+  static task = LOCAL_EMBEDDING_TASK;
+  static model = LOCAL_EMBEDDING_MODEL;
   static instance: Awaited<ReturnType<typeof pipeline>> | null = null;
 
   static async getInstance(progress_callback?: ProgressCallback) {

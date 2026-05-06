@@ -1,4 +1,10 @@
-export function chunkText(text: string, chunkSize: number = 200, overlap: number = 20): string[] {
+import { DEFAULT_CHUNK_SIZE, DEFAULT_CHUNK_OVERLAP } from '@/constants';
+
+export function chunkText(
+  text: string,
+  chunkSize: number = DEFAULT_CHUNK_SIZE,
+  overlap: number = DEFAULT_CHUNK_OVERLAP
+): string[] {
   if (!text) return [];
 
   // Split by paragraphs first to try and keep context together

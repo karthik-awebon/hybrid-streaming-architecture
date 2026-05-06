@@ -2,10 +2,11 @@
 
 import { Pinecone } from '@pinecone-database/pinecone';
 import { IngestRecord } from '@/types/ingest';
+import { PINECONE_API_KEY, PINECONE_INDEX } from '@/constants';
 
 export async function upsertToPinecone(records: IngestRecord[]) {
   try {
-    if (!process.env.PINECONE_API_KEY) {
+    if (!PINECONE_API_KEY) {
       throw new Error('PINECONE_API_KEY is not set');
     }
 
@@ -13,9 +14,8 @@ export async function upsertToPinecone(records: IngestRecord[]) {
       return { success: false, error: 'No records provided for ingestion.' };
     }
 
-    const pc = new Pinecone({ apiKey: process.env.PINECONE_API_KEY });
-    const indexName = process.env.PINECONE_INDEX || 'test-index';
-    const index = pc.index(indexName);
+    const pc = new Pinecone({ apiKey: PINECONE_API_KEY });
+    const index = pc.index(PINECONE_INDEX);
 
     console.log(`[DEBUG] Preparing to upsert ${records.length} records to Pinecone...`);
 

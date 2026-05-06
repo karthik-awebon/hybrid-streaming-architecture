@@ -2,9 +2,16 @@ import { openai } from '@ai-sdk/openai';
 import { convertToModelMessages, streamText } from 'ai';
 import { Pinecone } from '@pinecone-database/pinecone';
 import { ChatRequestBody } from '@/types/api';
+import {
+  PINECONE_API_KEY,
+  PINECONE_INDEX,
+  PINECONE_TOP_K,
+  DEFAULT_LLM_MODEL,
+  API_MAX_DURATION,
+} from '@/constants';
 
-// Allow streaming responses up to 30 seconds
-export const maxDuration = 30;
+// Allow streaming responses up to configured seconds
+export const maxDuration = API_MAX_DURATION;
 
 export async function POST(req: Request) {
   try {
@@ -17,17 +24,16 @@ export async function POST(req: Request) {
     let augmentedSystemPrompt = 'You are a helpful AI assistant.';
 
     // If an embedding was provided and Pinecone keys exist, perform vector search
-    if (embedding && embedding.length > 0 && process.env.PINECONE_API_KEY) {
+    if (embedding && embedding.length > 0 && PINECONE_API_KEY) {
       console.log(`[DEBUG] Received embedding with length: ${embedding.length}`);
       try {
-        const pc = new Pinecone({ apiKey: process.env.PINECONE_API_KEY });
-        const indexName = process.env.PINECONE_INDEX || 'test-index';
-        const index = pc.index(indexName);
+        const pc = new Pinecone({ apiKey: PINECONE_API_KEY });
+        const index = pc.index(PINECONE_INDEX);
 
-        console.log(`[DEBUG] Querying Pinecone index: ${indexName}...`);
+        console.log(`[DEBUG] Querying Pinecone index: ${PINECONE_INDEX}...`);
         const queryResponse = await index.query({
           vector: embedding,
-          topK: 3,
+          topK: PINECONE_TOP_K,
           includeMetadata: true,
         });
 
@@ -57,7 +63,7 @@ export async function POST(req: Request) {
     }
 
     const result = streamText({
-      model: openai('gpt-4o-mini'),
+      model: openai(DEFAULT_LLM_MODEL),
       system: augmentedSystemPrompt,
       messages: await convertToModelMessages(messages),
     });

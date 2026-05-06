@@ -7,6 +7,7 @@ import { ModelStatus } from '@/components/ModelStatus';
 import { chunkText } from '@/utils/chunking';
 import { upsertToPinecone } from '@/actions/ingest';
 import { IngestRecord, IngestStatus } from '@/types/ingest';
+import { INGEST_CHUNK_SIZE, INGEST_CHUNK_OVERLAP } from '@/constants';
 
 export default function IngestPage() {
   const { isReady, progress, generateEmbedding } = useEmbedding();
@@ -21,7 +22,7 @@ export default function IngestPage() {
     setMessage('Chunking text...');
 
     // 1. Chunk the text
-    const chunks = chunkText(text, 500, 50); // Adjust chunk size as needed
+    const chunks = chunkText(text, INGEST_CHUNK_SIZE, INGEST_CHUNK_OVERLAP);
 
     if (chunks.length === 0) {
       setStatus('error');
