@@ -2,6 +2,8 @@ import { openai } from '@ai-sdk/openai';
 import { convertToModelMessages, streamText } from 'ai';
 import { Pinecone } from '@pinecone-database/pinecone';
 import { ChatRequestSchema } from '@/schemas/chat';
+import { createErrorResponse } from '@/utils/api-response';
+import { ValidationError } from '@/utils/errors';
 import {
   PINECONE_API_KEY,
   PINECONE_INDEX,
@@ -19,13 +21,7 @@ export async function POST(req: Request) {
     const parseResult = ChatRequestSchema.safeParse(json);
 
     if (!parseResult.success) {
-      return new Response(
-        JSON.stringify({ error: 'Invalid request data', details: parseResult.error.format() }),
-        {
-          status: 400,
-          headers: { 'Content-Type': 'application/json' },
-        }
-      );
+      throw new ValidationError('Invalid request data', parseResult.error.format());
     }
 
     const { messages, data } = parseResult.data;
@@ -83,6 +79,6 @@ export async function POST(req: Request) {
     return result.toUIMessageStreamResponse();
   } catch (error) {
     console.error('Chat API Error:', error);
-    return new Response('Internal Server Error', { status: 500 });
+    return createErrorResponse(error);
   }
 }

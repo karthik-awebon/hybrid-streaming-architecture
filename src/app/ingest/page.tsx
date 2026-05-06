@@ -9,6 +9,8 @@ import { upsertToPinecone } from '@/actions/ingest';
 import { IngestRecord, IngestStatus } from '@/types/ingest';
 import { INGEST_CHUNK_SIZE, INGEST_CHUNK_OVERLAP } from '@/constants';
 import { IngestSchema } from '@/schemas/ingest';
+import { ErrorMessage } from '@/components/ErrorMessage';
+import { getErrorMessage } from '@/utils/error-handler';
 
 export default function IngestPage() {
   const { isReady, progress, generateEmbedding } = useEmbedding();
@@ -77,7 +79,7 @@ export default function IngestPage() {
     } catch (err) {
       console.error('Pinecone upsert failed:', err);
       setStatus('error');
-      setMessage(`Upload failed: ${(err as Error).message}`);
+      setMessage(getErrorMessage(err));
     }
   };
 
@@ -107,19 +109,17 @@ export default function IngestPage() {
 
           <div className="mt-4 flex items-center justify-between">
             <div className="text-sm font-medium">
-              {status !== 'idle' && (
+              {status === 'error' ? (
+                <ErrorMessage message={message} />
+              ) : status !== 'idle' ? (
                 <span
                   className={
-                    status === 'error'
-                      ? 'text-red-500'
-                      : status === 'success'
-                        ? 'text-emerald-600'
-                        : 'text-blue-600 animate-pulse'
+                    status === 'success' ? 'text-emerald-600' : 'text-blue-600 animate-pulse'
                   }
                 >
                   {message}
                 </span>
-              )}
+              ) : null}
             </div>
 
             <button

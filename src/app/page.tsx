@@ -7,6 +7,8 @@ import { Header } from '@/components/Header';
 import { MessageList } from '@/components/MessageList';
 import { ChatInput } from '@/components/ChatInput';
 import { ModelStatus } from '@/components/ModelStatus';
+import { ErrorMessage } from '@/components/ErrorMessage';
+import { getErrorMessage } from '@/utils/error-handler';
 import { ChatLogic } from '@/types/chat';
 
 /**
@@ -18,7 +20,7 @@ function useChatLogic(): ChatLogic {
   const [latency, setLatency] = useState<number | null>(null);
   const startTimeRef = useRef<number | null>(null);
 
-  const { messages, sendMessage, status } = useChat();
+  const { messages, sendMessage, status, error } = useChat();
   const isLoading = status === 'submitted' || status === 'streaming';
 
   // Effect to capture first chunk arrival
@@ -71,11 +73,12 @@ function useChatLogic(): ChatLogic {
     progress,
     handleSubmit,
     latency,
+    error,
   };
 }
 
 export default function ChatPage() {
-  const { input, setInput, messages, isLoading, isReady, progress, handleSubmit, latency } =
+  const { input, setInput, messages, isLoading, isReady, progress, handleSubmit, latency, error } =
     useChatLogic();
 
   return (
@@ -84,6 +87,8 @@ export default function ChatPage() {
 
       <main className="flex-1 px-4 py-8 space-y-8 overflow-y-auto mb-32">
         <ModelStatus isReady={isReady} progress={progress} />
+
+        <ErrorMessage message={getErrorMessage(error)} className="mx-4" />
 
         {latency && (
           <div className="flex justify-center">

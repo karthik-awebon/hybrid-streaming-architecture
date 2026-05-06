@@ -12,4 +12,5 @@ export interface ChatLogic {
   progress: EmbeddingProgress | null;
   handleSubmit: (e: FormEvent<HTMLFormElement>) => Promise<void>;
   latency: number | null;
+  error: Error | undefined;
 }
