@@ -17,6 +17,13 @@ export const LOCAL_EMBEDDING_MODEL =
 /** Task type for the Transformers.js pipeline. */
 export const LOCAL_EMBEDDING_TASK = 'feature-extraction' as const;
 
+// Server Embedding Model (OpenAI)
+/** Model name for server-side embedding generation. */
+export const SERVER_EMBEDDING_MODEL =
+  process.env.SERVER_EMBEDDING_MODEL || 'text-embedding-3-small';
+/** Number of dimensions for the server-side embedding generation. */
+export const SERVER_EMBEDDING_DIMENSIONS = Number(process.env.SERVER_EMBEDDING_DIMENSIONS) || 384;
+
 // AI / LLM
 /** Default LLM model identifier. */
 export const DEFAULT_LLM_MODEL = process.env.NEXT_PUBLIC_DEFAULT_LLM_MODEL || 'gpt-4o-mini';
