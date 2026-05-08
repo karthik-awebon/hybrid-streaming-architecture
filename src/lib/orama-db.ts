@@ -129,7 +129,7 @@ export class OramaDB implements OramaDBManager {
           property: 'embedding',
         },
         limit,
-        similarity: 0, // Explicitly set to 0 to return all matches ranked by similarity
+        similarity: 0.2,
       });
 
       logger.info(`Search returned ${results.hits.length} hits`);

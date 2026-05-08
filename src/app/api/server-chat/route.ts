@@ -44,7 +44,7 @@ export async function POST(req: Request) {
 
     // Extract the latest user message to generate its embedding
     const lastUserMessage = [...messages].reverse().find((m) => m.role === 'user');
-    const userMessageText = lastUserMessage?.content || '';
+    const userMessageText = lastUserMessage?.parts[0]!.text || '';
 
     let augmentedSystemPrompt = 'You are a helpful AI assistant.';
 
@@ -58,9 +58,11 @@ export async function POST(req: Request) {
         const { embedding } = await embed({
           model: openai.embedding(SERVER_EMBEDDING_MODEL),
           value: userMessageText,
-          // Configure dimensions via provider options or experimental_providerMetadata if available,
-          // though for this version we may just let OpenAI default if not supported.
-          // We will use 384 if the API handles it or if Pinecone is recreated.
+          providerOptions: {
+            openai: {
+              dimensions: 384,
+            },
+          },
         });
 
         logger.debug(`Successfully generated embedding with length: ${embedding.length}`);

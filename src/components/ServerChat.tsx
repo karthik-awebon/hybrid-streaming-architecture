@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { useChat } from '@ai-sdk/react';
+import { DefaultChatTransport } from 'ai';
 import { MessageList } from '@/components/MessageList';
 import { ChatInput } from '@/components/ChatInput';
 
@@ -9,20 +10,9 @@ export function ServerChat() {
   const [input, setInput] = useState('');
 
   const { messages, sendMessage, status } = useChat({
-    // @ts-expect-error api might not be strictly typed in this setup, but should be passed to the underlying Chat transport
-    api: '/api/server-chat',
-    initialMessages: [
-      {
-        id: '1',
-        role: 'assistant',
-        parts: [
-          {
-            type: 'text',
-            text: 'Hello! I am your server-side RAG assistant. Ask me anything based on the indexed documents.',
-          },
-        ],
-      },
-    ],
+    transport: new DefaultChatTransport({
+      api: '/api/server-chat',
+    }),
   });
 
   const isLoading = status === 'submitted' || status === 'streaming';

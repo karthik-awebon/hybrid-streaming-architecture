@@ -63,7 +63,9 @@ describe('Server Chat API Route', () => {
     const req = new Request('http://localhost/api/server-chat', {
       method: 'POST',
       body: JSON.stringify({
-        messages: [{ role: 'user', content: 'Tell me about the documents' }],
+        messages: [
+          { role: 'user', parts: [{ type: 'text', text: 'Tell me about the documents' }] },
+        ],
       }),
     });
 
