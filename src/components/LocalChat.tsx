@@ -7,7 +7,9 @@ import { oramaDB } from '@/lib/orama-db';
 import { logger } from '@/utils/logger';
 import { MessageList } from '@/components/MessageList';
 import { ChatInput } from '@/components/ChatInput';
+import { SourceGrid } from '@/components/SourceGrid';
 import { UIMessage as Message } from 'ai';
+import { OramaSearchResult } from '@/types/local-rag';
 
 export function LocalChat() {
   const { isReady: isEmbeddingReady, generateEmbedding } = useEmbedding();
@@ -17,6 +19,7 @@ export function LocalChat() {
     progress: llmProgress,
     initialize: initializeLLM,
     chat: streamChat,
+    stop: stopLLM,
   } = useWebLLM();
 
   const [messages, setMessages] = useState<Message[]>([
@@ -33,6 +36,7 @@ export function LocalChat() {
   ]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [sources, setSources] = useState<OramaSearchResult[]>([]);
 
   // Auto-initialize LLM if not ready
   useEffect(() => {
@@ -54,11 +58,13 @@ export function LocalChat() {
     setMessages((prev) => [...prev, userMessage]);
     setInput('');
     setIsLoading(true);
+    setSources([]);
 
     try {
       logger.info('Performing semantic search for query:', input);
       const queryEmbedding = await generateEmbedding(input);
       const searchResults = await oramaDB.search(queryEmbedding, 3);
+      setSources(searchResults);
 
       const context = searchResults.map((r) => r.text).join('\n\n');
       logger.debug('Context retrieved:', context);
@@ -135,6 +141,9 @@ export function LocalChat() {
 
       <div className="flex-grow overflow-y-auto p-4 pb-32">
         <MessageList messages={messages} isLoading={isLoading} />
+
+        {!isLoading && sources.length > 0 && <SourceGrid sources={sources} />}
+
         {isLoading && (
           <div className="flex justify-start mb-4">
             <div className="bg-white border border-slate-200 rounded-2xl px-4 py-2 text-slate-500 text-sm flex items-center gap-2">
@@ -229,6 +238,7 @@ export function LocalChat() {
         onSubmit={handleSubmit}
         isReady={isLLMReady && isEmbeddingReady}
         isLoading={isLoading}
+        onStop={stopLLM}
       />
     </div>
   );

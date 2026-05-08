@@ -102,4 +102,23 @@ describe('useChatLogic', () => {
       body: { data: { embedding: [] } },
     });
   });
+
+  it('should expose the stop function from useChat', () => {
+    const mockStop = vi.fn();
+    vi.mocked(useChat).mockReturnValue({
+      messages: [],
+      sendMessage: mockSendMessage,
+      status: 'idle',
+      error: undefined,
+      stop: mockStop,
+    } as any);
+
+    const { result } = renderHook(() => useChatLogic());
+
+    act(() => {
+      result.current.stop();
+    });
+
+    expect(mockStop).toHaveBeenCalled();
+  });
 });

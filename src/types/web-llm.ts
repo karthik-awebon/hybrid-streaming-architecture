@@ -31,4 +31,6 @@ export interface UseWebLLMReturn {
   chat: (messages: ChatCompletionMessageParam[]) => AsyncGenerator<string, void, unknown>;
   /** Initialize the engine. */
   initialize: () => Promise<void>;
+  /** Stop the current generation. */
+  stop: () => Promise<void>;
 }

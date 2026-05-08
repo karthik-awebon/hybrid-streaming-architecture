@@ -3,7 +3,14 @@ import { ChatInputProps } from '@/types/components';
 /**
  * Chat input component with form handling and local model status awareness.
  */
-export function ChatInput({ input, setInput, onSubmit, isReady, isLoading }: ChatInputProps) {
+export function ChatInput({
+  input,
+  setInput,
+  onSubmit,
+  isReady,
+  isLoading,
+  onStop,
+}: ChatInputProps) {
   return (
     <footer className="fixed bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-white via-white to-transparent">
       <form onSubmit={onSubmit} className="max-w-3xl mx-auto">
@@ -13,22 +20,43 @@ export function ChatInput({ input, setInput, onSubmit, isReady, isLoading }: Cha
             value={input}
             placeholder={isReady ? 'How can I help you today?' : 'Preparing local AI model...'}
             onChange={(e) => setInput(e.target.value)}
-            disabled={!isReady || isLoading}
+            disabled={!isReady || (isLoading && !onStop)}
           />
-          <button
-            type="submit"
-            disabled={!isReady || isLoading || !input.trim()}
-            className="absolute right-3 p-2 text-white bg-blue-600 rounded-xl hover:bg-blue-700 disabled:bg-slate-100 disabled:text-slate-400 transition-all duration-200"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="currentColor"
-              className="w-5 h-5"
+          {isLoading && onStop ? (
+            <button
+              type="button"
+              onClick={onStop}
+              className="absolute right-3 p-2 text-white bg-red-600 rounded-xl hover:bg-red-700 transition-all duration-200"
             >
-              <path d="M3.478 2.404a.75.75 0 0 0-.926.941l2.432 7.905H13.5a.75.75 0 0 1 0 1.5H4.984l-2.432 7.905a.75.75 0 0 0 .926.94 60.519 60.519 0 0 0 18.445-8.986.75.75 0 0 0 0-1.218A60.517 60.517 0 0 0 3.478 2.404Z" />
-            </svg>
-          </button>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+                className="w-5 h-5"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M4.5 7.5a3 3 0 0 1 3-3h9a3 3 0 0 1 3 3v9a3 3 0 0 1-3 3h-9a3 3 0 0 1-3-3v-9Z"
+                  clipRule="evenodd"
+                />
+              </svg>
+            </button>
+          ) : (
+            <button
+              type="submit"
+              disabled={!isReady || isLoading || !input.trim()}
+              className="absolute right-3 p-2 text-white bg-blue-600 rounded-xl hover:bg-blue-700 disabled:bg-slate-100 disabled:text-slate-400 transition-all duration-200"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+                className="w-5 h-5"
+              >
+                <path d="M3.478 2.404a.75.75 0 0 0-.926.941l2.432 7.905H13.5a.75.75 0 0 1 0 1.5H4.984l-2.432 7.905a.75.75 0 0 0 .926.94 60.519 60.519 0 0 0 18.445-8.986.75.75 0 0 0 0-1.218A60.517 60.517 0 0 0 3.478 2.404Z" />
+              </svg>
+            </button>
+          )}
         </div>
         <p className="mt-3 text-center text-[10px] text-slate-400 uppercase tracking-widest font-bold">
           Client-Side Vector Generation Enabled

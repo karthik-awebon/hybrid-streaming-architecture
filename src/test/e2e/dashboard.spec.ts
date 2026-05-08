@@ -33,6 +33,60 @@ test.describe('Semantic Search Dashboard (Local RAG)', () => {
     await expect(page.getByText(/Successfully ingested/)).toBeVisible({ timeout: 15000 });
   });
 
+  test('should support file upload ingestion', async ({ page }) => {
+    // Wait for the embedding model to be ready so the upload button is enabled
+    await expect(page.locator('label[for="file-upload"]')).not.toHaveClass(/opacity-50/, {
+      timeout: 30000,
+    });
+
+    // Start listening for file chooser
+    const fileChooserPromise = page.waitForEvent('filechooser');
+
+    // Click the upload label (which triggers the hidden input)
+    await page.locator('label[for="file-upload"]').click();
+
+    const fileChooser = await fileChooserPromise;
+    await fileChooser.setFiles('src/test/fixtures/test.txt');
+
+    // Should show success message after parsing and loading into textarea
+    await expect(page.getByText(/Successfully loaded text.*test\.txt/)).toBeVisible({
+      timeout: 20000,
+    });
+
+    // Textarea should contain some content from the file
+    const textarea = page.getByPlaceholder('Paste your text here to index it locally...');
+    await expect(textarea).not.toHaveValue('');
+
+    // Manually click ingest
+    await page.getByRole('button', { name: 'Ingest Text' }).click();
+
+    // Should show ingestion success message
+    await expect(page.getByText(/Successfully ingested/)).toBeVisible({ timeout: 20000 });
+  });
+
+  test('should support PDF file upload ingestion', async ({ page }) => {
+    // Wait for the embedding model to be ready so the upload button is enabled
+    await expect(page.locator('label[for="file-upload"]')).not.toHaveClass(/opacity-50/, {
+      timeout: 30000,
+    });
+
+    const fileChooserPromise = page.waitForEvent('filechooser');
+    await page.locator('label[for="file-upload"]').click();
+    const fileChooser = await fileChooserPromise;
+    await fileChooser.setFiles('src/test/fixtures/test.pdf');
+
+    // Should show success message after parsing and loading
+    await expect(page.getByText(/Successfully loaded text.*test\.pdf/)).toBeVisible({
+      timeout: 20000,
+    });
+
+    // Manually click ingest
+    await page.getByRole('button', { name: 'Ingest Text' }).click();
+
+    // Should show ingestion success message
+    await expect(page.getByText(/Successfully ingested/)).toBeVisible({ timeout: 20000 });
+  });
+
   test('should handle WebGPU compatibility gracefully', async ({ page }) => {
     // In CI/headless environments, WebGPU is typically not supported.
     // The LocalChat component checks for this and shows an error if initialization fails.

@@ -1,37 +1,61 @@
-import * as pdfjsLib from 'pdfjs-dist';
 import mammoth from 'mammoth';
 import { logger } from '@/utils/logger';
 import { ValidationError, AppError } from '@/utils/errors';
-
-// Configure pdfjs worker
-// In a real Next.js app, this might need a more robust setup like copying the worker to public/
-if (typeof window !== 'undefined' && !pdfjsLib.GlobalWorkerOptions.workerSrc) {
-  pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
-}
 
 /**
  * Extracts text from a PDF file.
  */
 async function parsePdf(file: File): Promise<string> {
   try {
+    // Dynamic import to avoid SSR issues with browser-only APIs like DOMMatrix
+    const pdfjsLib = await import('pdfjs-dist');
+
+    // Configure pdfjs worker if in browser
+    if (typeof window !== 'undefined' && !pdfjsLib.GlobalWorkerOptions.workerSrc) {
+      // Use the local worker from the public folder
+      pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdfjs/pdf.worker.min.mjs';
+    }
+
     const arrayBuffer = await file.arrayBuffer();
-    const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
+    const uint8Array = new Uint8Array(arrayBuffer);
+
+    const loadingTask = pdfjsLib.getDocument({
+      data: uint8Array,
+      useWorkerFetch: false, // Avoid worker fetching issues in some environments
+    });
+
     const pdf = await loadingTask.promise;
     let fullText = '';
 
     for (let i = 1; i <= pdf.numPages; i++) {
-      const page = await pdf.getPage(i);
-      const textContent = await page.getTextContent();
-      const pageText = textContent.items
-        .map((item: unknown) => (item as { str?: string }).str || '')
-        .join(' ');
-      fullText += pageText + '\n';
+      try {
+        const page = await pdf.getPage(i);
+        const textContent = await page.getTextContent();
+        const pageText = textContent.items
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          .map((item: any) => item.str || '')
+          .join(' ');
+        fullText += pageText + '\n';
+      } catch (pageError) {
+        logger.warn(`Error parsing page ${i} of PDF ${file.name}`, { error: pageError });
+        continue; // Skip failed pages but continue parsing others
+      }
+    }
+
+    if (!fullText.trim()) {
+      throw new Error('No text content found in PDF');
     }
 
     return fullText.trim();
-  } catch (error) {
-    logger.error('Error parsing PDF', { error, fileName: file.name });
-    throw new AppError(`Failed to parse PDF: ${file.name}`, 500, error);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  } catch (error: any) {
+    const errorMessage = error?.message || String(error);
+    logger.error('Error parsing PDF', {
+      message: errorMessage,
+      fileName: file.name,
+      stack: error?.stack,
+    });
+    throw new AppError(`Failed to parse PDF: ${file.name} - ${errorMessage}`, 500, error);
   }
 }
 

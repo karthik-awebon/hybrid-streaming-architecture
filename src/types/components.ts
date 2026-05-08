@@ -1,6 +1,7 @@
 import { UIMessage } from 'ai';
 import { EmbeddingProgress } from './embedding';
 import { FormEvent } from 'react';
+import { OramaSearchResult } from './local-rag';
 
 /**
  * Props for the MessageList component.
@@ -34,6 +35,8 @@ export interface ChatInputProps {
   isReady: boolean;
   /** Whether a chat request is currently in progress. */
   isLoading: boolean;
+  /** Function to stop the current chat response streaming. */
+  onStop?: () => void;
 }
 
 /**
@@ -52,4 +55,14 @@ export interface ModelStatusProps {
   isReady: boolean;
   /** Current loading progress of the model, or null if not loading. */
   progress: EmbeddingProgress | null;
+}
+
+/**
+ * Props for the SourceGrid component.
+ */
+export interface SourceGridProps {
+  /** Array of search results to display. */
+  sources: OramaSearchResult[];
+  /** Optional title for the grid. */
+  title?: string;
 }

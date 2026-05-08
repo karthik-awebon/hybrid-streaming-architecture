@@ -99,6 +99,16 @@ export function useWebLLM(): UseWebLLMReturn {
     [status]
   );
 
+  /**
+   * Interrupts the current generation.
+   */
+  const stop = useCallback(async () => {
+    if (engineRef.current) {
+      await engineRef.current.interruptGenerate();
+      logger.info('WebLLM generation interrupted');
+    }
+  }, []);
+
   return {
     status,
     progress,
@@ -106,5 +116,6 @@ export function useWebLLM(): UseWebLLMReturn {
     error,
     chat,
     initialize,
+    stop,
   };
 }

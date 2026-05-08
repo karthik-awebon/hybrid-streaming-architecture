@@ -13,8 +13,18 @@ import { getErrorMessage } from '@/utils/error-handler';
  * Provides the interface for interacting with the AI using local embeddings for RAG.
  */
 export default function ChatPage() {
-  const { input, setInput, messages, isLoading, isReady, progress, handleSubmit, latency, error } =
-    useChatLogic();
+  const {
+    input,
+    setInput,
+    messages,
+    isLoading,
+    isReady,
+    progress,
+    handleSubmit,
+    latency,
+    error,
+    stop,
+  } = useChatLogic();
 
   return (
     <div className="flex flex-col w-full max-w-3xl min-h-screen mx-auto bg-white font-sans text-slate-900">
@@ -42,6 +52,7 @@ export default function ChatPage() {
         onSubmit={handleSubmit}
         isReady={isReady}
         isLoading={isLoading}
+        onStop={stop}
       />
     </div>
   );

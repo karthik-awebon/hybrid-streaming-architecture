@@ -26,4 +26,6 @@ export interface ChatLogic {
   latency: number | null;
   /** Any error that occurred during chat operations. */
   error: Error | undefined;
+  /** Function to stop the current chat response streaming. */
+  stop: () => void;
 }

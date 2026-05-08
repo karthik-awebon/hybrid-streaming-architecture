@@ -42,8 +42,10 @@ const shouldLog = (level: LogLevel): boolean => {
  * @returns A formatted log string.
  */
 const formatMessage = (level: LogLevel, message: string): string => {
-  const timestamp = new Date().toISOString();
-  return `[${timestamp}] [${level.toUpperCase()}] ${message}`;
+  const now = new Date();
+  const offset = now.getTimezoneOffset() * 60000;
+  const localTimestamp = new Date(now.getTime() - offset).toISOString().slice(0, -1);
+  return `[${localTimestamp}] [${level.toUpperCase()}] ${message}`;
 };
 
 /**

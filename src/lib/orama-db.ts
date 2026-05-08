@@ -10,6 +10,11 @@ const SCHEMA = {
   id: 'string',
   text: 'string',
   embedding: 'vector[384]',
+  metadata: {
+    source: 'string',
+    index: 'number',
+    timestamp: 'string',
+  },
 } as const;
 
 /**

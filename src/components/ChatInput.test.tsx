@@ -83,4 +83,25 @@ describe('ChatInput', () => {
     const button = screen.getByRole('button');
     expect(button).toBeDisabled();
   });
+
+  it('should render stop button when loading and onStop is provided', () => {
+    const mockOnStop = vi.fn();
+    render(
+      <ChatInput
+        input="test"
+        setInput={mockSetInput}
+        onSubmit={mockOnSubmit}
+        isReady={true}
+        isLoading={true}
+        onStop={mockOnStop}
+      />
+    );
+
+    // Should have a button that isn't the submit button (type="button")
+    const stopButton = screen.getByRole('button');
+    expect(stopButton).toHaveAttribute('type', 'button');
+
+    fireEvent.click(stopButton);
+    expect(mockOnStop).toHaveBeenCalled();
+  });
 });

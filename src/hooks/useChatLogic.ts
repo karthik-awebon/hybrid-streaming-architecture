@@ -16,7 +16,7 @@ export function useChatLogic(): ChatLogic {
   const [latency, setLatency] = useState<number | null>(null);
   const startTimeRef = useRef<number | null>(null);
 
-  const { messages, sendMessage, status, error } = useChat();
+  const { messages, sendMessage, status, error, stop } = useChat();
   const isLoading = status === 'submitted' || status === 'streaming';
 
   // Effect to capture first chunk arrival
@@ -76,5 +76,6 @@ export function useChatLogic(): ChatLogic {
     handleSubmit,
     latency,
     error,
+    stop,
   };
 }

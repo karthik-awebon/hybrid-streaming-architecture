@@ -42,6 +42,7 @@ describe('ChatPage', () => {
       latency: null,
       error: undefined,
       status: 'idle',
+      stop: vi.fn(),
     });
   });
 

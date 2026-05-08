@@ -10,6 +10,7 @@ import { logger } from '@/utils/logger';
 import { ErrorMessage } from '@/components/ErrorMessage';
 import { ModelStatus } from '@/components/ModelStatus';
 import { AppError } from '@/utils/errors';
+import { INGEST_CHUNK_OVERLAP, INGEST_CHUNK_SIZE } from '@/constants';
 
 const IngestSchema = z.string().min(1, 'Content cannot be empty');
 
@@ -23,11 +24,13 @@ export function LocalIngest() {
   const [isIngesting, setIsIngesting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const [showConfirmClear, setShowConfirmClear] = useState(false);
 
   const handleIngest = async (content: string, fileName: string = 'pasted-text') => {
     setIsIngesting(true);
     setError(null);
     setSuccess(null);
+    setShowConfirmClear(false);
 
     try {
       IngestSchema.parse(content);
@@ -38,7 +41,7 @@ export function LocalIngest() {
 
       logger.info(`Starting ingestion for: ${fileName}`);
 
-      const chunks = chunkText(content);
+      const chunks = chunkText(content, INGEST_CHUNK_SIZE, INGEST_CHUNK_OVERLAP);
       logger.debug(`Text split into ${chunks.length} chunks`);
 
       const records = await Promise.all(
@@ -71,6 +74,24 @@ export function LocalIngest() {
     }
   };
 
+  const handleClear = async () => {
+    setError(null);
+    setSuccess(null);
+    setIsIngesting(true);
+    try {
+      await oramaDB.clear();
+      setSuccess('Local index cleared successfully');
+      setShowConfirmClear(false);
+      logger.info('Local index cleared');
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to clear index';
+      setError(errorMessage);
+      logger.error('Clearing index failed', { error: err });
+    } finally {
+      setIsIngesting(false);
+    }
+  };
+
   const onFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -81,12 +102,17 @@ export function LocalIngest() {
 
     try {
       const parsedText = await parseDocument(file);
-      await handleIngest(parsedText, file.name);
+      setText(parsedText);
+      setSuccess(`Successfully loaded text from ${file.name}. You can now review and ingest it.`);
+      logger.info(`File loaded into textarea: ${file.name}`);
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to parse file';
       setError(errorMessage);
       logger.error('File parsing failed', { error: err, fileName: file.name });
+    } finally {
       setIsIngesting(false);
+      // Reset input so the same file can be selected again
+      e.target.value = '';
     }
   };
 
@@ -164,6 +190,50 @@ export function LocalIngest() {
               </svg>
               Upload File
             </label>
+          </div>
+
+          <div className="ml-auto flex items-center gap-2">
+            {!showConfirmClear ? (
+              <button
+                onClick={() => setShowConfirmClear(true)}
+                disabled={isIngesting}
+                className="p-2.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all duration-200 group"
+                title="Clear local index"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  strokeWidth={2}
+                  stroke="currentColor"
+                  className="w-5 h-5"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0"
+                  />
+                </svg>
+              </button>
+            ) : (
+              <div className="flex items-center gap-2 animate-in fade-in slide-in-from-right-2">
+                <span className="text-xs font-bold text-red-500 uppercase tracking-wider">
+                  Are you sure?
+                </span>
+                <button
+                  onClick={handleClear}
+                  className="px-3 py-1.5 bg-red-600 text-white text-xs font-bold rounded-lg hover:bg-red-700 transition-all"
+                >
+                  Yes, Clear
+                </button>
+                <button
+                  onClick={() => setShowConfirmClear(false)}
+                  className="px-3 py-1.5 bg-slate-100 text-slate-600 text-xs font-bold rounded-lg hover:bg-slate-200 transition-all"
+                >
+                  Cancel
+                </button>
+              </div>
+            )}
           </div>
         </div>
 

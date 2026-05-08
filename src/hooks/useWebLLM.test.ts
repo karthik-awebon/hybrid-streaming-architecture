@@ -139,4 +139,24 @@ describe('useWebLLM', () => {
       expect(err.message).toBe('WebLLM engine not ready. Please initialize it first.');
     }
   });
+
+  it('should call interruptGenerate when stop is called', async () => {
+    const mockEngine = {
+      chat: { completions: { create: vi.fn() } },
+      interruptGenerate: vi.fn().mockResolvedValue(undefined),
+    };
+    (CreateMLCEngine as any).mockResolvedValue(mockEngine);
+
+    const { result } = renderHook(() => useWebLLM());
+
+    await act(async () => {
+      await result.current.initialize();
+    });
+
+    await act(async () => {
+      await result.current.stop();
+    });
+
+    expect(mockEngine.interruptGenerate).toHaveBeenCalled();
+  });
 });

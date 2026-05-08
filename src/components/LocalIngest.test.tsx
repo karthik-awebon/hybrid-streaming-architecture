@@ -72,4 +72,29 @@ describe('LocalIngest', () => {
     expect(textarea).toBeDisabled();
     expect(screen.getByText('50%')).toBeInTheDocument();
   });
+
+  it('loads text into textarea on file upload', async () => {
+    const { parseDocument } = await import('@/utils/document-parser');
+    vi.mocked(parseDocument).mockResolvedValue('parsed file content');
+
+    vi.mocked(useEmbedding).mockReturnValue({
+      isReady: true,
+      progress: null,
+      generateEmbedding: vi.fn(),
+    } as any);
+
+    render(<LocalIngest />);
+
+    const file = new File(['mock content'], 'test.txt', { type: 'text/plain' });
+    const input = screen.getByLabelText(/Upload File/i);
+
+    fireEvent.change(input, { target: { files: [file] } });
+
+    await waitFor(() => {
+      const textarea = screen.getByPlaceholderText(/Paste your text here/i) as HTMLTextAreaElement;
+      expect(textarea.value).toBe('parsed file content');
+      expect(screen.getByText(/Successfully loaded text/i)).toBeInTheDocument();
+      expect(oramaDB.insert).not.toHaveBeenCalled();
+    });
+  });
 });
