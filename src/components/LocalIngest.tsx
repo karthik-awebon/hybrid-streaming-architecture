@@ -50,7 +50,7 @@ export function LocalIngest() {
           return {
             id: `${fileName}-${Date.now()}-${index}`,
             text: chunk,
-            embedding,
+            embedding: Array.from(new Float32Array(embedding)), // Ensure it's a clean array of floats
             metadata: {
               source: fileName,
               index,

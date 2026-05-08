@@ -1,4 +1,4 @@
-import { create, insert, search, save, load, AnyOrama } from '@orama/orama';
+import { create, insertMultiple, search, save, load, AnyOrama } from '@orama/orama';
 import { get, set, del } from 'idb-keyval';
 import { logger } from '@/utils/logger';
 import { DatabaseError } from '@/utils/errors';
@@ -96,11 +96,14 @@ export class OramaDB implements OramaDBManager {
         await this.initialize();
       }
 
-      // Orama's insert returns the number of inserted documents
-      await Promise.all(records.map((record) => insert(this.db!, record)));
+      // Use insertMultiple for better performance and reliability in Orama 3.x
+      await insertMultiple(this.db!, records);
 
       await this.saveSnapshot();
-      logger.info(`Inserted ${records.length} records into Orama`);
+
+      // Diagnostic log
+      const docCount = await this.getDocumentCount();
+      logger.info(`Inserted ${records.length} records into Orama. Total documents: ${docCount}`);
     } catch (error) {
       logger.error('Failed to insert records into Orama', { error });
       throw new DatabaseError('Failed to insert records into Orama', error);
@@ -116,14 +119,26 @@ export class OramaDB implements OramaDBManager {
         await this.initialize();
       }
 
+      const docCount = await this.getDocumentCount();
+      logger.info(`Performing vector search on Orama with ${docCount} documents`);
+
       const results = await search(this.db!, {
         mode: 'vector',
         vector: {
-          value: embedding,
+          value: new Float32Array(embedding),
           property: 'embedding',
         },
         limit,
+        similarity: 0, // Explicitly set to 0 to return all matches ranked by similarity
       });
+
+      logger.info(`Search returned ${results.hits.length} hits`);
+
+      if (results.hits.length > 0 && results.hits[0]) {
+        logger.debug('Top hit score:', results.hits[0].score);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        logger.debug('Top hit text:', (results.hits[0].document as any).text.substring(0, 50));
+      }
 
       return results.hits.map((hit) => {
         const doc = hit.document as unknown as OramaRecord;
@@ -137,6 +152,24 @@ export class OramaDB implements OramaDBManager {
     } catch (error) {
       logger.error('Orama search failed', { error });
       throw new DatabaseError('Orama search failed', error);
+    }
+  }
+
+  /**
+   * Gets the total number of documents in the database.
+   * This is a utility for diagnostics.
+   */
+  private async getDocumentCount(): Promise<number> {
+    if (!this.db) return 0;
+    try {
+      // In Orama 3.x, we can use search with empty query to get count
+      const result = await search(this.db, {
+        limit: 0,
+      });
+      return result.count;
+    } catch (error) {
+      logger.error('Failed to get document count', { error });
+      return 0;
     }
   }
 

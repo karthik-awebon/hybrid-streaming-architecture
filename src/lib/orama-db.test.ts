@@ -9,6 +9,7 @@ import { DatabaseError } from '@/utils/errors';
 vi.mock('@orama/orama', () => ({
   create: vi.fn(),
   insert: vi.fn(),
+  insertMultiple: vi.fn(),
   search: vi.fn(),
   save: vi.fn(),
   load: vi.fn(),
@@ -71,14 +72,16 @@ describe('OramaDB', () => {
   describe('insert', () => {
     it('should insert records and save snapshot', async () => {
       vi.mocked(orama.create).mockResolvedValue({} as any);
-      vi.mocked(orama.insert).mockResolvedValue('1' as any);
+      vi.mocked(orama.insertMultiple).mockResolvedValue(1 as any);
       vi.mocked(orama.save).mockResolvedValue({ data: 'snapshot' } as any);
+      // Mock search for getDocumentCount
+      vi.mocked(orama.search).mockResolvedValue({ count: 1, hits: [] } as any);
 
-      const records = [{ id: '1', text: 'test', embedding: [0.1, 0.2] }];
+      const records = [{ id: '1', text: 'test', embedding: [0.1, 0.2] }] as any;
 
       await dbManager.insert(records);
 
-      expect(orama.insert).toHaveBeenCalled();
+      expect(orama.insertMultiple).toHaveBeenCalled();
       expect(orama.save).toHaveBeenCalled();
       expect(idbKeyval.set).toHaveBeenCalledWith('orama-snapshot', expect.any(Object));
     });
@@ -94,6 +97,7 @@ describe('OramaDB', () => {
             document: { text: 'found text', metadata: { source: 'test' } },
           },
         ],
+        count: 1,
       };
 
       vi.mocked(orama.create).mockResolvedValue({} as any);

@@ -54,12 +54,19 @@ self.addEventListener('message', async (event) => {
     try {
       const { text, id } = event.data;
       const extractor = await PipelineSingleton.getInstance();
-      // Use as any for the options because of type mismatches in the library's complex pipeline types
+
+      // Generate embedding with mean pooling and normalization
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const output = await extractor(text, { pooling: 'mean', normalize: true } as any);
-      // The output.data is a Float32Array on a Tensor
+
+      // Extract data from the tensor
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const vector = Array.from((output as any).data as Float32Array);
+
+      if (vector.length !== 384) {
+        throw new Error(`Invalid embedding dimension: ${vector.length}. Expected 384.`);
+      }
+
       self.postMessage({ status: 'complete', id, vector });
     } catch (error) {
       self.postMessage({ status: 'error', id: event.data.id, error: (error as Error).message });

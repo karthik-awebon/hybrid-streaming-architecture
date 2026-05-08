@@ -63,7 +63,15 @@ export function LocalChat() {
     try {
       logger.info('Performing semantic search for query:', input);
       const queryEmbedding = await generateEmbedding(input);
+      logger.debug('Query embedding generated, length:', queryEmbedding.length);
+
       const searchResults = await oramaDB.search(queryEmbedding, 3);
+      logger.info(`Search returned ${searchResults.length} results`);
+
+      searchResults.forEach((res, i) => {
+        logger.debug(`Result ${i + 1}: Score ${res.score}, Text: ${res.text.substring(0, 50)}...`);
+      });
+
       setSources(searchResults);
 
       const context = searchResults.map((r) => r.text).join('\n\n');
