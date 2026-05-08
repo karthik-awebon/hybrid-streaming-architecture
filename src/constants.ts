@@ -20,6 +20,9 @@ export const LOCAL_EMBEDDING_TASK = 'feature-extraction' as const;
 // AI / LLM
 /** Default LLM model identifier. */
 export const DEFAULT_LLM_MODEL = process.env.NEXT_PUBLIC_DEFAULT_LLM_MODEL || 'gpt-4o-mini';
+/** WebLLM model identifier for local browser-side inference. */
+export const WEBLLM_MODEL =
+  process.env.NEXT_PUBLIC_WEBLLM_MODEL || 'Llama-3.1-8B-Instruct-q4f32_1-MLC';
 /** Maximum duration for API requests in seconds. */
 export const API_MAX_DURATION = Number(process.env.NEXT_PUBLIC_API_MAX_DURATION) || 30;
 

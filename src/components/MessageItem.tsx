@@ -16,10 +16,12 @@ export function MessageItem({ message }: MessageItemProps) {
         }`}
       >
         <div className="text-sm leading-relaxed whitespace-pre-wrap">
-          {message.parts
-            ?.filter((p) => p.type === 'text')
-            .map((p) => ('text' in p ? p.text : ''))
-            .join('')}
+          {message.parts && message.parts.length > 0
+            ? message.parts
+                .filter((p) => p.type === 'text')
+                .map((p) => ('text' in p ? p.text : ''))
+                .join('')
+            : ''}
         </div>
       </div>
     </div>

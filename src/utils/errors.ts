@@ -50,3 +50,12 @@ export class UnauthorizedError extends AppError {
     super(message, 401);
   }
 }
+
+/**
+ * Error thrown when a database operation fails.
+ */
+export class DatabaseError extends AppError {
+  constructor(message: string, details?: unknown) {
+    super(message, 500, details);
+  }
+}
