@@ -4,12 +4,17 @@ import { parseDocument } from './document-parser';
 import * as pdfjsLib from 'pdfjs-dist';
 import mammoth from 'mammoth';
 import { ValidationError } from '@/utils/errors';
+import { parseImageToMarkdown } from '@/actions/ingest';
 
 // Mock dependencies
 vi.mock('pdfjs-dist', () => ({
   getDocument: vi.fn(),
   GlobalWorkerOptions: { workerSrc: '' },
   version: '5.7.284',
+}));
+
+vi.mock('@/actions/ingest', () => ({
+  parseImageToMarkdown: vi.fn(),
 }));
 
 vi.mock('mammoth', () => ({
@@ -60,10 +65,26 @@ describe('document-parser', () => {
     it('should parse PDF files using pdfjs-dist', async () => {
       const file = new File(['mock content'], 'test.pdf', { type: 'application/pdf' });
 
+      // Mock canvas functions used in parsePdf
+      const mockCanvasContext = {
+        drawImage: vi.fn(),
+      };
+
+      const mockCanvas = {
+        height: 0,
+        width: 0,
+        getContext: vi.fn().mockReturnValue(mockCanvasContext),
+        toDataURL: vi.fn().mockReturnValue('data:image/jpeg;base64,mockbase64'),
+      };
+
+      vi.spyOn(document, 'createElement').mockImplementation((tagName: string) => {
+        if (tagName === 'canvas') return mockCanvas as any;
+        return document.createElement(tagName);
+      });
+
       const mockPage = {
-        getTextContent: vi.fn().mockResolvedValue({
-          items: [{ str: 'pdf' }, { str: 'content' }],
-        }),
+        getViewport: vi.fn().mockReturnValue({ width: 800, height: 1000 }),
+        render: vi.fn().mockReturnValue({ promise: Promise.resolve() }),
       };
 
       const mockPdf = {
@@ -75,10 +96,13 @@ describe('document-parser', () => {
         promise: Promise.resolve(mockPdf),
       } as any);
 
+      vi.mocked(parseImageToMarkdown).mockResolvedValue('# pdf content\nSome text here.');
+
       const result = await parseDocument(file);
 
       expect(pdfjsLib.getDocument).toHaveBeenCalled();
-      expect(result).toBe('pdf content');
+      expect(parseImageToMarkdown).toHaveBeenCalledWith('data:image/jpeg;base64,mockbase64');
+      expect(result).toBe('# pdf content\nSome text here.');
     });
   });
 });

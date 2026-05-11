@@ -1,6 +1,8 @@
 'use server';
 
 import { Pinecone } from '@pinecone-database/pinecone';
+import { openai } from '@ai-sdk/openai';
+import { generateText } from 'ai';
 import { IngestRecord } from '@/types/ingest';
 import { PINECONE_API_KEY, PINECONE_INDEX } from '@/constants';
 import { IngestRecordsSchema } from '@/schemas/ingest';
@@ -50,5 +52,40 @@ export async function upsertToPinecone(records: IngestRecord[]) {
   } catch (error) {
     logger.error('Pinecone upsert error', error);
     return { success: false, error: (error as Error).message };
+  }
+}
+
+/**
+ * Server Action to parse a base64 image of a document page into Markdown.
+ * Uses a vision language model.
+ *
+ * @param base64Image - Base64 representation of the image (e.g. data:image/jpeg;base64,...)
+ * @returns A promise that resolves to the generated Markdown string.
+ */
+export async function parseImageToMarkdown(base64Image: string): Promise<string> {
+  try {
+    const { text } = await generateText({
+      model: openai('gpt-4o-mini'),
+      messages: [
+        {
+          role: 'user',
+          content: [
+            {
+              type: 'text',
+              text: 'Transcribe this document page into Markdown. Preserve all tables, headers, lists, and reading order.',
+            },
+            {
+              type: 'image',
+              image: new URL(base64Image),
+            },
+          ],
+        },
+      ],
+    });
+
+    return text;
+  } catch (error) {
+    logger.error('VLM processing error', error);
+    throw new Error('Failed to parse image to markdown');
   }
 }

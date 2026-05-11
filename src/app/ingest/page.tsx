@@ -30,7 +30,7 @@ export default function IngestPage() {
                   id="file-upload"
                   className="hidden"
                   onChange={onFileChange}
-                  accept=".txt,.pdf,.docx"
+                  accept=".txt,.pdf,.docx,.md"
                   disabled={
                     status === 'chunking' || status === 'embedding' || status === 'uploading'
                   }

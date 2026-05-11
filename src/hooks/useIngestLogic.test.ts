@@ -160,4 +160,56 @@ describe('useIngestLogic', () => {
     expect(result.current.status).toBe('error');
     expect(result.current.message).toBe('Parse error');
   });
+
+  it('should handle PDF file change by triggering download and not setting text', async () => {
+    const { result } = renderHook(() => useIngestLogic());
+    const mockFile = new File(['%PDF-1.4'], 'test.pdf', { type: 'application/pdf' });
+    const mockEvent = {
+      target: {
+        files: [mockFile],
+        value: 'test.pdf',
+      },
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } as any;
+
+    vi.mocked(parseDocument).mockResolvedValue('# Mock Markdown content');
+
+    // Mock DOM elements for download
+    const mockAnchor = {
+      click: vi.fn(),
+      href: '',
+      download: '',
+    };
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const createElementSpy = vi.spyOn(document, 'createElement').mockReturnValue(mockAnchor as any);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const appendChildSpy = vi
+      .spyOn(document.body, 'appendChild')
+      .mockImplementation(() => ({}) as any);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const removeChildSpy = vi
+      .spyOn(document.body, 'removeChild')
+      .mockImplementation(() => ({}) as any);
+    const createObjectURLSpy = vi.spyOn(URL, 'createObjectURL').mockReturnValue('blob:mock-url');
+    const revokeObjectURLSpy = vi.spyOn(URL, 'revokeObjectURL').mockImplementation(() => {});
+
+    await act(async () => {
+      await result.current.onFileChange(mockEvent);
+    });
+
+    expect(parseDocument).toHaveBeenCalledWith(mockFile);
+    expect(result.current.text).toBe(''); // Text area should NOT be populated for PDF
+    expect(result.current.status).toBe('idle');
+    expect(result.current.message).toContain('PDF converted to Markdown and downloaded');
+
+    expect(createElementSpy).toHaveBeenCalledWith('a');
+    expect(mockAnchor.download).toBe('test.md');
+    expect(mockAnchor.click).toHaveBeenCalled();
+
+    createElementSpy.mockRestore();
+    appendChildSpy.mockRestore();
+    removeChildSpy.mockRestore();
+    createObjectURLSpy.mockRestore();
+    revokeObjectURLSpy.mockRestore();
+  });
 });

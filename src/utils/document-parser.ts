@@ -1,6 +1,7 @@
 import mammoth from 'mammoth';
 import { logger } from '@/utils/logger';
 import { ValidationError, AppError } from '@/utils/errors';
+import { parseImageToMarkdown } from '@/actions/ingest';
 
 /**
  * Extracts text from a PDF file.
@@ -30,12 +31,21 @@ async function parsePdf(file: File): Promise<string> {
     for (let i = 1; i <= pdf.numPages; i++) {
       try {
         const page = await pdf.getPage(i);
-        const textContent = await page.getTextContent();
-        const pageText = textContent.items
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          .map((item: any) => item.str || '')
-          .join(' ');
-        fullText += pageText + '\n';
+        const viewport = page.getViewport({ scale: 1.5 });
+        const canvas = document.createElement('canvas');
+        const context = canvas.getContext('2d');
+        if (!context) {
+          throw new Error('Failed to get canvas 2d context');
+        }
+        canvas.height = viewport.height;
+        canvas.width = viewport.width;
+
+        await page.render({ canvasContext: context, viewport, canvas }).promise;
+        const base64Image = canvas.toDataURL('image/jpeg', 0.8);
+
+        // Process this page through the VLM Server Action
+        const pageMarkdown = await parseImageToMarkdown(base64Image);
+        fullText += pageMarkdown + '\n\n';
       } catch (pageError) {
         logger.warn(`Error parsing page ${i} of PDF ${file.name}`, { error: pageError });
         continue; // Skip failed pages but continue parsing others
@@ -105,6 +115,7 @@ export async function parseDocument(file: File): Promise<string> {
     case 'docx':
       return parseDocx(file);
     case 'txt':
+    case 'md':
       return parseTxt(file);
     default:
       throw new ValidationError(`Unsupported file type: ${extension}`);

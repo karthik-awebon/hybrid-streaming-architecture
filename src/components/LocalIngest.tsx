@@ -102,9 +102,28 @@ export function LocalIngest() {
 
     try {
       const parsedText = await parseDocument(file);
-      setText(parsedText);
-      setSuccess(`Successfully loaded text from ${file.name}. You can now review and ingest it.`);
-      logger.info(`File loaded into textarea: ${file.name}`);
+
+      if (file.name.toLowerCase().endsWith('.pdf')) {
+        // Trigger download of the Markdown file
+        const blob = new Blob([parsedText], { type: 'text/markdown' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = file.name.replace(/\.pdf$/i, '.md');
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+
+        setSuccess(
+          `PDF converted to Markdown and downloaded. Please upload the .md file to ingest.`
+        );
+        logger.info(`PDF converted to Markdown and downloaded: ${file.name}`);
+      } else {
+        setText(parsedText);
+        setSuccess(`Successfully loaded text from ${file.name}. You can now review and ingest it.`);
+        logger.info(`File loaded into textarea: ${file.name}`);
+      }
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to parse file';
       setError(errorMessage);
@@ -160,7 +179,7 @@ export function LocalIngest() {
                 id="file-upload"
                 className="hidden"
                 onChange={onFileChange}
-                accept=".txt,.pdf,.docx"
+                accept=".txt,.pdf,.docx,.md"
                 disabled={isIngesting || !isEmbeddingReady}
               />
               <label

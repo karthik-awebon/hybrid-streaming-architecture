@@ -16,7 +16,7 @@ const nextConfig: NextConfig = {
   serverExternalPackages: ['@xenova/transformers'],
   experimental: {
     serverActions: {
-      bodySizeLimit: '2mb',
+      bodySizeLimit: '12mb',
     },
   },
   // Configure webpack to ignore node-specific modules (for non-turbo builds)
