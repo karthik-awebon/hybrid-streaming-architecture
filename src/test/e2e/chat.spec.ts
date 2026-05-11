@@ -2,13 +2,13 @@ import { test, expect } from '@playwright/test';
 
 test.describe('Chat Flow', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/');
+    await page.goto('/hybrid-rag');
     // Wait for model to be ready
     await expect(page.locator('text=Model Ready')).toBeVisible({ timeout: 30000 });
   });
 
   test('should send a message and receive a response', async ({ page }) => {
-    const input = page.locator('placeholder=How can I help you today?');
+    const input = page.getByPlaceholder('How can I help you today?');
     await input.fill('Hello AI, how are you?');
     await page.click('button[type="submit"]');
 
@@ -22,11 +22,11 @@ test.describe('Chat Flow', () => {
   });
 
   test('should show loading state during streaming', async ({ page }) => {
-    const input = page.locator('placeholder=How can I help you today?');
+    const input = page.getByPlaceholder('How can I help you today?');
     await input.fill('Tell me a long story');
     await page.click('button[type="submit"]');
 
     // Look for the bounce animation (loading dots)
-    await expect(page.locator('.animate-bounce')).toBeVisible();
+    await expect(page.locator('.animate-bounce').first()).toBeVisible();
   });
 });

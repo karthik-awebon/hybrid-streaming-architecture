@@ -7,7 +7,7 @@ test.describe('Server Streaming RAG', () => {
   });
 
   test('should render the Server Chat interface', async ({ page }) => {
-    await expect(page.getByText('Server Chat (RAG)')).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Server-Side RAG Assistant' })).toBeVisible();
     await expect(page.getByText('Server-Side Processing')).toBeVisible();
     await expect(
       page.getByText('Hello! I am your server-side RAG assistant.', { exact: false })

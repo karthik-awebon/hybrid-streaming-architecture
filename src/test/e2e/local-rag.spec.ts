@@ -3,7 +3,7 @@ import { test, expect } from '@playwright/test';
 test.describe('Semantic Search Dashboard (Local RAG)', () => {
   test.beforeEach(async ({ page }) => {
     // Navigate to dashboard
-    await page.goto('/dashboard');
+    await page.goto('/local-rag');
   });
 
   test('should render both Ingest and Chat panels', async ({ page }) => {

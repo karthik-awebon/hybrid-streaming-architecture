@@ -4,6 +4,7 @@ import { useIngestLogic } from './useIngestLogic';
 import { useEmbedding } from '@/hooks/useEmbedding';
 import { chunkText } from '@/utils/chunking';
 import { upsertToPinecone } from '@/actions/ingest';
+import { parseDocument } from '@/utils/document-parser';
 
 vi.mock('@/hooks/useEmbedding', () => ({
   useEmbedding: vi.fn(),
@@ -15,6 +16,10 @@ vi.mock('@/utils/chunking', () => ({
 
 vi.mock('@/actions/ingest', () => ({
   upsertToPinecone: vi.fn(),
+}));
+
+vi.mock('@/utils/document-parser', () => ({
+  parseDocument: vi.fn(),
 }));
 
 describe('useIngestLogic', () => {
@@ -109,5 +114,50 @@ describe('useIngestLogic', () => {
 
     expect(result.current.status).toBe('error');
     expect(result.current.message).toBe('Pinecone error');
+  });
+
+  it('should handle file change successfully', async () => {
+    const { result } = renderHook(() => useIngestLogic());
+    const mockFile = new File(['hello world'], 'test.txt', { type: 'text/plain' });
+    const mockEvent = {
+      target: {
+        files: [mockFile],
+        value: 'test.txt',
+      },
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } as any;
+
+    vi.mocked(parseDocument).mockResolvedValue('parsed content');
+
+    await act(async () => {
+      await result.current.onFileChange(mockEvent);
+    });
+
+    expect(parseDocument).toHaveBeenCalledWith(mockFile);
+    expect(result.current.text).toBe('parsed content');
+    expect(result.current.status).toBe('idle');
+    expect(result.current.message).toContain('Successfully loaded text from test.txt');
+    expect(mockEvent.target.value).toBe('');
+  });
+
+  it('should handle file parsing failure', async () => {
+    const { result } = renderHook(() => useIngestLogic());
+    const mockFile = new File(['hello world'], 'test.txt', { type: 'text/plain' });
+    const mockEvent = {
+      target: {
+        files: [mockFile],
+        value: 'test.txt',
+      },
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } as any;
+
+    vi.mocked(parseDocument).mockRejectedValue(new Error('Parse error'));
+
+    await act(async () => {
+      await result.current.onFileChange(mockEvent);
+    });
+
+    expect(result.current.status).toBe('error');
+    expect(result.current.message).toBe('Parse error');
   });
 });

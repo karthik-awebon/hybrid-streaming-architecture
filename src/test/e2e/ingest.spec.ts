@@ -8,7 +8,7 @@ test.describe('Ingest Flow', () => {
   });
 
   test('should ingest text successfully', async ({ page }) => {
-    const textarea = page.locator('placeholder=Paste your document or large text here...');
+    const textarea = page.getByPlaceholder('Paste your document or large text here...');
     const ingestText =
       'This is a test document that will be embedded locally and sent to Pinecone.';
     await textarea.fill(ingestText);
@@ -30,7 +30,7 @@ test.describe('Ingest Flow', () => {
     const submitButton = page.locator('button:has-text("Process & Ingest")');
     await expect(submitButton).toBeDisabled();
 
-    await page.locator('placeholder=Paste your document').fill('   ');
+    await page.getByPlaceholder('Paste your document or large text here...').fill('   ');
     await expect(submitButton).toBeDisabled();
   });
 });

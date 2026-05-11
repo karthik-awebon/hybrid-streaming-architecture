@@ -5,18 +5,12 @@ import { ChatRequestSchema } from '@/schemas/chat';
 import { createErrorResponse } from '@/utils/api-response';
 import { ValidationError } from '@/utils/errors';
 import { logger } from '@/utils/logger';
-import {
-  PINECONE_API_KEY,
-  PINECONE_INDEX,
-  PINECONE_TOP_K,
-  DEFAULT_LLM_MODEL,
-  API_MAX_DURATION,
-} from '@/constants';
+import { PINECONE_API_KEY, PINECONE_INDEX, PINECONE_TOP_K, DEFAULT_LLM_MODEL } from '@/constants';
 
 /**
  * Configure the maximum duration for the streaming response.
  */
-export const maxDuration = API_MAX_DURATION;
+export const maxDuration = 30;
 
 /**
  * POST handler for the chat API route.

@@ -23,6 +23,7 @@ vi.mock('@/components/ErrorMessage', () => ({
 describe('IngestPage', () => {
   const mockHandleIngest = vi.fn();
   const mockSetText = vi.fn();
+  const mockOnFileChange = vi.fn();
 
   beforeEach(() => {
     vi.mocked(useIngestLogic).mockReturnValue({
@@ -33,6 +34,7 @@ describe('IngestPage', () => {
       isReady: true,
       progress: null,
       handleIngest: mockHandleIngest,
+      onFileChange: mockOnFileChange,
     });
   });
 

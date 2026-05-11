@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import ChatPage from '@/app/page';
+import ChatPage from '@/app/hybrid-rag/page';
 import { useChat } from '@ai-sdk/react';
 
 // Mock useChat from AI SDK
@@ -28,7 +28,7 @@ class MockWorker {
 
 // Mock next/navigation
 vi.mock('next/navigation', () => ({
-  usePathname: vi.fn(() => '/'),
+  usePathname: vi.fn(() => '/hybrid-rag'),
 }));
 
 describe('Chat Flow Integration', () => {

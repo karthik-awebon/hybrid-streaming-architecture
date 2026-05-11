@@ -35,7 +35,25 @@ export function Header({ isReady }: HeaderProps) {
             href="/"
             className={`text-sm font-medium transition-colors ${pathname === '/' ? 'text-blue-600' : 'text-slate-500 hover:text-slate-800'}`}
           >
-            Chat
+            Home
+          </Link>
+          <Link
+            href="/hybrid-rag"
+            className={`text-sm font-medium transition-colors ${pathname === '/hybrid-rag' ? 'text-blue-600' : 'text-slate-500 hover:text-slate-800'}`}
+          >
+            Hybrid RAG
+          </Link>
+          <Link
+            href="/local-rag"
+            className={`text-sm font-medium transition-colors ${pathname === '/local-rag' ? 'text-blue-600' : 'text-slate-500 hover:text-slate-800'}`}
+          >
+            Local RAG
+          </Link>
+          <Link
+            href="/server-rag"
+            className={`text-sm font-medium transition-colors ${pathname === '/server-rag' ? 'text-blue-600' : 'text-slate-500 hover:text-slate-800'}`}
+          >
+            Server RAG
           </Link>
           <Link
             href="/ingest"

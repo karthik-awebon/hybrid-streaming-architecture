@@ -1,6 +1,7 @@
 import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
+  pageExtensions: ['ts', 'tsx', 'js', 'jsx'].filter((ext) => !ext.includes('test')),
   // Top-level turbopack configuration for Next.js 16+
   turbopack: {
     resolveAlias: {

@@ -24,8 +24,18 @@ describe('Header', () => {
     vi.mocked(usePathname).mockReturnValue('/');
     render(<Header isReady={true} />);
 
-    expect(screen.getByText('Hybrid RAG')).toBeInTheDocument();
-    expect(screen.getByText('Chat')).toBeInTheDocument();
+    // Check title (h1)
+    const title = screen.getByRole('heading', { level: 1, name: /Hybrid RAG/i });
+    expect(title).toBeInTheDocument();
+
+    // Check navigation links
+    expect(screen.getByText('Home')).toBeInTheDocument();
+    // Use getAllByText for 'Hybrid RAG' since it appears in h1 and as a link
+    const hybridRagLinks = screen.getAllByText('Hybrid RAG');
+    expect(hybridRagLinks.length).toBeGreaterThanOrEqual(1);
+
+    expect(screen.getByText('Local RAG')).toBeInTheDocument();
+    expect(screen.getByText('Server RAG')).toBeInTheDocument();
     expect(screen.getByText('Ingest')).toBeInTheDocument();
   });
 
@@ -34,7 +44,8 @@ describe('Header', () => {
     render(<Header isReady={true} />);
 
     expect(screen.getByText('Ingest')).toHaveClass('text-blue-600');
-    expect(screen.getByText('Chat')).toHaveClass('text-slate-500');
+    // 'Home' should not be highlighted
+    expect(screen.getByText('Home')).toHaveClass('text-slate-500');
   });
 
   it('should show "Model Ready" status when isReady is true', () => {

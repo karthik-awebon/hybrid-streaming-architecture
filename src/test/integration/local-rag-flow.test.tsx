@@ -4,6 +4,12 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { useWebLLM } from '@/hooks/useWebLLM';
 import { oramaDB } from '@/lib/orama-db';
 
+vi.mock('pdfjs-dist', () => ({
+  getDocument: vi.fn(),
+  GlobalWorkerOptions: { workerSrc: '' },
+  version: '2.14.305',
+}));
+
 // Mock idb-keyval
 vi.mock('idb-keyval', () => ({
   get: vi.fn().mockResolvedValue(null),
@@ -36,11 +42,11 @@ class MockWorker {
 
 // Mock next/navigation
 vi.mock('next/navigation', () => ({
-  usePathname: vi.fn(() => '/dashboard'),
+  usePathname: vi.fn(() => '/local-rag'),
 }));
 
 // Import the component (DashboardPage is default export)
-import Dashboard from '@/app/dashboard/page';
+import Dashboard from '@/app/local-rag/page';
 
 describe('Local RAG Full Integration Flow', () => {
   const mockStreamChat = vi.fn();
@@ -78,8 +84,8 @@ describe('Local RAG Full Integration Flow', () => {
     });
 
     // 2. Ingest simple text
-    const textarea = screen.getByPlaceholderText(/Paste your text here/i);
-    const ingestButton = screen.getByRole('button', { name: /Ingest Text/i });
+    const textarea = screen.getByPlaceholderText(/Paste text here/i);
+    const ingestButton = screen.getByRole('button', { name: /Add to Local Index/i });
 
     fireEvent.change(textarea, { target: { value: 'The capital of France is Paris.' } });
     fireEvent.click(ingestButton);

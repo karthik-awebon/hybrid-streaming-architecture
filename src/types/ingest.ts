@@ -31,4 +31,6 @@ export interface IngestLogic {
   progress: EmbeddingProgress | null;
   /** Handler to initiate the ingestion process. */
   handleIngest: () => Promise<void>;
+  /** Handler for file selection and parsing. */
+  onFileChange: (e: React.ChangeEvent<HTMLInputElement>) => Promise<void>;
 }

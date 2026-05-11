@@ -10,14 +10,13 @@ import {
   PINECONE_INDEX,
   PINECONE_TOP_K,
   DEFAULT_LLM_MODEL,
-  API_MAX_DURATION,
   SERVER_EMBEDDING_MODEL,
 } from '@/constants';
 
 /**
  * Configure the maximum duration for the streaming response.
  */
-export const maxDuration = API_MAX_DURATION;
+export const maxDuration = 30;
 
 /**
  * POST handler for the server-chat API route.

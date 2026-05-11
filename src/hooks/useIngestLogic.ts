@@ -7,6 +7,7 @@ import { INGEST_CHUNK_SIZE, INGEST_CHUNK_OVERLAP } from '@/constants';
 import { IngestSchema } from '@/schemas/ingest';
 import { getErrorMessage } from '@/utils/error-handler';
 import { logger } from '@/utils/logger';
+import { parseDocument } from '@/utils/document-parser';
 
 /**
  * Custom hook to manage the ingestion process.
@@ -92,6 +93,33 @@ export function useIngestLogic(): IngestLogic {
     }
   };
 
+  /**
+   * Handles file selection, parsing, and populating the text area.
+   */
+  const onFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setStatus('chunking'); // Use chunking as a loading state for parsing
+    setMessage(`Parsing ${file.name}...`);
+    setText(''); // Clear existing text
+
+    try {
+      const parsedText = await parseDocument(file);
+      setText(parsedText);
+      setStatus('idle');
+      setMessage(`Successfully loaded text from ${file.name}.`);
+      logger.info(`File loaded into ingest text area: ${file.name}`);
+    } catch (err) {
+      logger.error('File parsing failed', { error: err, fileName: file.name });
+      setStatus('error');
+      setMessage(getErrorMessage(err));
+    } finally {
+      // Reset input so the same file can be selected again
+      e.target.value = '';
+    }
+  };
+
   return {
     text,
     setText,
@@ -100,5 +128,6 @@ export function useIngestLogic(): IngestLogic {
     isReady,
     progress,
     handleIngest,
+    onFileChange,
   };
 }

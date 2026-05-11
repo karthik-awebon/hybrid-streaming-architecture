@@ -16,6 +16,7 @@ vi.mock('@/hooks/useEmbedding');
 vi.mock('@/lib/orama-db', () => ({
   oramaDB: {
     insert: vi.fn(),
+    clear: vi.fn(),
   },
 }));
 vi.mock('@/utils/document-parser');
@@ -33,8 +34,8 @@ describe('LocalIngest', () => {
     } as any);
 
     render(<LocalIngest />);
-    expect(screen.getByText('Local Ingest')).toBeInTheDocument();
-    expect(screen.getByPlaceholderText(/Paste your text here/i)).toBeInTheDocument();
+    expect(screen.getByText('Data Ingestion')).toBeInTheDocument();
+    expect(screen.getByPlaceholderText(/Paste text here/i)).toBeInTheDocument();
   });
 
   it('handles text ingestion', async () => {
@@ -47,10 +48,10 @@ describe('LocalIngest', () => {
 
     render(<LocalIngest />);
 
-    const textarea = screen.getByPlaceholderText(/Paste your text here/i);
+    const textarea = screen.getByPlaceholderText(/Paste text here/i);
     fireEvent.change(textarea, { target: { value: 'Test content for ingestion' } });
 
-    const ingestButton = screen.getByText('Ingest Text');
+    const ingestButton = screen.getByText('Add to Local Index');
     fireEvent.click(ingestButton);
 
     await waitFor(() => {
@@ -63,12 +64,12 @@ describe('LocalIngest', () => {
   it('disables input when not ready', () => {
     vi.mocked(useEmbedding).mockReturnValue({
       isReady: false,
-      progress: { progress: 50, text: 'Loading' },
+      progress: { progress: 50, text: 'Loading', file: 'model.bin' },
       generateEmbedding: vi.fn(),
     } as any);
 
     render(<LocalIngest />);
-    const textarea = screen.getByPlaceholderText(/Paste your text here/i);
+    const textarea = screen.getByPlaceholderText(/Paste text here/i);
     expect(textarea).toBeDisabled();
     expect(screen.getByText('50%')).toBeInTheDocument();
   });
@@ -86,12 +87,12 @@ describe('LocalIngest', () => {
     render(<LocalIngest />);
 
     const file = new File(['mock content'], 'test.txt', { type: 'text/plain' });
-    const input = screen.getByLabelText(/Upload File/i);
+    const input = screen.getByLabelText(/Upload Document/i);
 
     fireEvent.change(input, { target: { files: [file] } });
 
     await waitFor(() => {
-      const textarea = screen.getByPlaceholderText(/Paste your text here/i) as HTMLTextAreaElement;
+      const textarea = screen.getByPlaceholderText(/Paste text here/i) as HTMLTextAreaElement;
       expect(textarea.value).toBe('parsed file content');
       expect(screen.getByText(/Successfully loaded text/i)).toBeInTheDocument();
       expect(oramaDB.insert).not.toHaveBeenCalled();

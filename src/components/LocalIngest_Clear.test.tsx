@@ -5,6 +5,12 @@ import { LocalIngest } from './LocalIngest';
 import { useEmbedding } from '@/hooks/useEmbedding';
 import { oramaDB } from '@/lib/orama-db';
 
+vi.mock('pdfjs-dist', () => ({
+  getDocument: vi.fn(),
+  GlobalWorkerOptions: { workerSrc: '' },
+  version: '2.14.305',
+}));
+
 // Mock dependencies
 vi.mock('@/hooks/useEmbedding', () => ({
   useEmbedding: vi.fn(),
@@ -36,21 +42,20 @@ describe('LocalIngest - Clear Functionality', () => {
   it('should show confirmation buttons when clear button is clicked', async () => {
     render(<LocalIngest />);
 
-    const clearButton = screen.getByTitle('Clear local index');
+    const clearButton = screen.getByTitle('Clear all indexed data');
     fireEvent.click(clearButton);
 
-    expect(screen.getByText(/Are you sure\?/i)).toBeDefined();
-    expect(screen.getByText('Yes, Clear')).toBeDefined();
-    expect(screen.getByText('Cancel')).toBeDefined();
+    expect(screen.getByText('Clear All')).toBeDefined();
+    expect(screen.getByText('Esc')).toBeDefined();
   });
 
-  it('should call oramaDB.clear when "Yes, Clear" is clicked', async () => {
+  it('should call oramaDB.clear when "Clear All" is clicked', async () => {
     vi.mocked(oramaDB.clear).mockResolvedValue(undefined);
 
     render(<LocalIngest />);
 
-    fireEvent.click(screen.getByTitle('Clear local index'));
-    fireEvent.click(screen.getByText('Yes, Clear'));
+    fireEvent.click(screen.getByTitle('Clear all indexed data'));
+    fireEvent.click(screen.getByText('Clear All'));
 
     await waitFor(() => {
       expect(oramaDB.clear).toHaveBeenCalled();
@@ -58,13 +63,13 @@ describe('LocalIngest - Clear Functionality', () => {
     });
   });
 
-  it('should hide confirmation and not call clear when "Cancel" is clicked', async () => {
+  it('should hide confirmation and not call clear when "Esc" is clicked', async () => {
     render(<LocalIngest />);
 
-    fireEvent.click(screen.getByTitle('Clear local index'));
-    fireEvent.click(screen.getByText('Cancel'));
+    fireEvent.click(screen.getByTitle('Clear all indexed data'));
+    fireEvent.click(screen.getByText('Esc'));
 
-    expect(screen.queryByText(/Are you sure\?/i)).toBeNull();
+    expect(screen.queryByText('Clear All')).toBeNull();
     expect(oramaDB.clear).not.toHaveBeenCalled();
   });
 });

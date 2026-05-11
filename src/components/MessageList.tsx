@@ -1,3 +1,4 @@
+import { usePathname } from 'next/navigation';
 import { MessageItem } from './MessageItem';
 import { MessageListProps } from '@/types/components';
 
@@ -6,7 +7,24 @@ import { MessageListProps } from '@/types/components';
  * Displays a welcome message if no messages are present.
  */
 export function MessageList({ messages, isLoading }: MessageListProps) {
+  const pathname = usePathname();
+
   if (messages.length === 0) {
+    const isServerRag = pathname === '/server-rag';
+    const isLocalRag = pathname === '/local-rag';
+
+    const title = isServerRag
+      ? 'Server-Side RAG Assistant'
+      : isLocalRag
+        ? 'Local RAG Assistant'
+        : 'Welcome to Hybrid RAG';
+
+    const description = isServerRag
+      ? 'Hello! I am your server-side RAG assistant. Ask me anything about the documents in the server index.'
+      : isLocalRag
+        ? 'Ask questions about your locally indexed documents. Everything stays in your browser.'
+        : 'Ask anything. Your query is embedded locally in your browser before being sent to the AI.';
+
     return (
       <div className="flex flex-col items-center justify-center h-64 text-center">
         <div className="p-4 bg-slate-50 rounded-2xl mb-4">
@@ -24,10 +42,8 @@ export function MessageList({ messages, isLoading }: MessageListProps) {
             />
           </svg>
         </div>
-        <h2 className="text-xl font-medium text-slate-800">Welcome to Hybrid RAG</h2>
-        <p className="mt-2 text-slate-500 max-w-sm">
-          Ask anything. Your query is embedded locally in your browser before being sent to the AI.
-        </p>
+        <h2 className="text-xl font-medium text-slate-800">{title}</h2>
+        <p className="mt-2 text-slate-500 max-w-sm">{description}</p>
       </div>
     );
   }
