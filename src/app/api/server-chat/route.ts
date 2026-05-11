@@ -11,7 +11,9 @@ import {
   PINECONE_TOP_K,
   DEFAULT_LLM_MODEL,
   SERVER_EMBEDDING_MODEL,
+  USE_LOCAL_EMBEDDING,
 } from '@/constants';
+import { generateLocalEmbedding } from '@/lib/server-embeddings';
 
 /**
  * Configure the maximum duration for the streaming response.
@@ -22,7 +24,7 @@ export const maxDuration = 30;
  * POST handler for the server-chat API route.
  * Orchestrates the Server RAG workflow:
  * 1. Validates the incoming chat request.
- * 2. Generates an embedding for the user's latest message on the server using OpenAI.
+ * 2. Generates an embedding for the user's latest message on the server using OpenAI or Transformers.js.
  * 3. Uses the generated embedding to query Pinecone for relevant context.
  * 4. Augments the system prompt with retrieved context.
  * 5. Streams the AI response using the configured LLM.
@@ -50,21 +52,31 @@ export async function POST(req: Request) {
     // Generate embedding on the server and query Pinecone if keys exist
     if (userMessageText && PINECONE_API_KEY) {
       try {
-        logger.debug(
-          `Generating server-side embedding for message using ${SERVER_EMBEDDING_MODEL}...`
-        );
+        let embedding: number[];
 
-        const { embedding } = await embed({
-          model: openai.embedding(SERVER_EMBEDDING_MODEL),
-          value: userMessageText,
-          providerOptions: {
-            openai: {
-              dimensions: 384,
+        if (USE_LOCAL_EMBEDDING) {
+          logger.debug(
+            `Generating local server-side embedding for message using Transformers.js... with text: ${userMessageText}`
+          );
+          embedding = await generateLocalEmbedding(userMessageText);
+        } else {
+          logger.debug(
+            `Generating server-side embedding for message using OpenAI (${SERVER_EMBEDDING_MODEL})... with text: ${userMessageText}`
+          );
+
+          const { embedding: openAIEmbedding } = await embed({
+            model: openai.embedding(SERVER_EMBEDDING_MODEL),
+            value: userMessageText,
+            providerOptions: {
+              openai: {
+                dimensions: 384,
+              },
             },
-          },
-        });
+          });
+          embedding = openAIEmbedding;
+        }
 
-        logger.debug(`Successfully generated embedding with length: ${embedding.length}`);
+        logger.debug(`Successfully generated embedding.`);
 
         const pc = new Pinecone({ apiKey: PINECONE_API_KEY });
         const index = pc.index(PINECONE_INDEX);

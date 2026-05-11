@@ -23,6 +23,8 @@ export const SERVER_EMBEDDING_MODEL =
   process.env.SERVER_EMBEDDING_MODEL || 'text-embedding-3-small';
 /** Number of dimensions for the server-side embedding generation. */
 export const SERVER_EMBEDDING_DIMENSIONS = Number(process.env.SERVER_EMBEDDING_DIMENSIONS) || 384;
+/** Toggle to use local embeddings (Transformers.js) on the server instead of OpenAI. */
+export const USE_LOCAL_EMBEDDING = process.env.USE_LOCAL_EMBEDDING === 'true';
 
 // AI / LLM
 /** Default LLM model identifier. */

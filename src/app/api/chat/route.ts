@@ -41,7 +41,7 @@ export async function POST(req: Request) {
 
     // If an embedding was provided and Pinecone keys exist, perform vector search
     if (embedding && embedding.length > 0 && PINECONE_API_KEY) {
-      logger.debug(`Received embedding with length: ${embedding.length}`);
+      logger.debug(`Received embedding: ${embedding}`);
       try {
         const pc = new Pinecone({ apiKey: PINECONE_API_KEY });
         const index = pc.index(PINECONE_INDEX);
