@@ -29,6 +29,7 @@ This is a **Next.js 15+** application (App Router) focused on a **Hybrid RAG (Re
 ### Architectural Directives
 
 - **Local-First Embeddings:** Whenever possible, use Transformers.js in the browser (via Web Workers) to generate embeddings.
+- **Layout-Aware Ingestion:** Use VLM-powered Server Actions to convert complex PDF visuals into structured Markdown before local ingestion.
 - **Streaming Responses:** Use `ai` package hooks and `streamText` for real-time AI interactions.
 - **Server Actions:** Use Server Actions (e.g., `src/actions/ingest.ts`) for database mutations.
 - **Validation:** Use Zod schemas (found in `src/schemas/`) for all API and form data.

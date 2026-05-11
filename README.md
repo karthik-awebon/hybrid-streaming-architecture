@@ -5,6 +5,7 @@ A modern, high-performance Next.js application demonstrating a **Hybrid Retrieva
 ## 🚀 Key Features
 
 - **Hybrid RAG Workflow:** Generates embeddings locally in the browser using `Transformers.js` to reduce server load and improve privacy.
+- **Layout-Aware Ingestion:** Uses Vision Language Models (VLM) to parse complex PDFs into structured Markdown, preserving tables, headers, and reading order.
 - **Real-time Streaming:** Seamlessly streams AI responses using the Vercel AI SDK.
 - **Vector Search:** Integrated with Pinecone for efficient context retrieval.
 - **Dedicated Logging:** Centralized logging utility for consistent traceability across client and server.
@@ -92,7 +93,9 @@ npm run lint
 
 ## 📐 Architecture Overview
 
-1.  **Ingestion:** Text is chunked, embedded locally via Web Workers (Transformers.js), and upserted to Pinecone via Next.js Server Actions.
+1.  **Ingestion (Layout-Aware):**
+    - **Complex PDFs:** Rendered to images in the browser and processed via a VLM Server Action to produce structured Markdown. The Markdown is then downloaded for user review and explicit ingestion.
+    - **Text/Markdown/DOCX:** Chunked and embedded locally via Web Workers (Transformers.js), then upserted to Pinecone via Next.js Server Actions.
 2.  **Retrieval:** When a user sends a message, a local embedding is generated and sent to the `/api/chat` route.
 3.  **Augmentation:** The server queries Pinecone using the provided embedding to find relevant context.
 4.  **Generation:** The system prompt is augmented with context, and the response is streamed back to the user using OpenAI.
