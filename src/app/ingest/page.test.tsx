@@ -40,7 +40,7 @@ describe('IngestPage', () => {
 
   it('should render correctly', () => {
     render(<IngestPage />);
-    expect(screen.getByText('Ingest Data to Pinecone')).toBeInTheDocument();
+    expect(screen.getByText('Layout-Aware Ingestion Pipeline')).toBeInTheDocument();
     expect(screen.getByPlaceholderText(/Paste your document/)).toBeInTheDocument();
   });
 

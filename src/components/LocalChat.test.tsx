@@ -33,7 +33,7 @@ describe('LocalChat', () => {
     } as any);
 
     render(<LocalChat />);
-    expect(screen.getByText('Local Chat (RAG)')).toBeInTheDocument();
+    expect(screen.getByText('Fully Local Chat (RAG)')).toBeInTheDocument();
     expect(screen.getByPlaceholderText(/How can I help you today/i)).toBeInTheDocument();
   });
 

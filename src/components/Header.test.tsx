@@ -25,7 +25,7 @@ describe('Header', () => {
     render(<Header isReady={true} />);
 
     // Check title (h1)
-    const title = screen.getByRole('heading', { level: 1, name: /Hybrid RAG/i });
+    const title = screen.getByRole('heading', { level: 1, name: /Hybrid Streaming Architecture/i });
     expect(title).toBeInTheDocument();
 
     // Check navigation links

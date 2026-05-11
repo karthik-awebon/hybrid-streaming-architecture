@@ -34,7 +34,7 @@ describe('LocalIngest', () => {
     } as any);
 
     render(<LocalIngest />);
-    expect(screen.getByText('Data Ingestion')).toBeInTheDocument();
+    expect(screen.getByText('Local Data Ingestion')).toBeInTheDocument();
     expect(screen.getByPlaceholderText(/Paste text here/i)).toBeInTheDocument();
   });
 

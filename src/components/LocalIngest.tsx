@@ -156,7 +156,7 @@ export function LocalIngest() {
                 />
               </svg>
             </div>
-            Data Ingestion
+            Local Data Ingestion
           </h2>
           <ModelStatus isReady={isEmbeddingReady} progress={embeddingProgress} />
         </div>

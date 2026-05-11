@@ -23,7 +23,9 @@ export default function IngestPage() {
 
           <div className="bg-slate-50 p-6 rounded-2xl border border-slate-100 shadow-sm">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-semibold text-slate-800">Ingest Data to Pinecone</h2>
+              <h2 className="text-xl font-semibold text-slate-800">
+                Layout-Aware Ingestion Pipeline
+              </h2>
               <div className="relative">
                 <input
                   type="file"

@@ -16,7 +16,10 @@ const geistMono = Geist_Mono({
  * Global metadata for the application.
  */
 export const metadata: Metadata = {
-  title: 'Hybrid Streaming RAG',
+  title: {
+    default: 'Hybrid Streaming RAG',
+    template: '%s | Hybrid Streaming RAG',
+  },
   description: 'A Next.js application demonstrating hybrid local-remote RAG architecture.',
 };
 

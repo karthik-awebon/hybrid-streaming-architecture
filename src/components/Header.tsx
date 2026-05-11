@@ -27,7 +27,9 @@ export function Header({ isReady }: HeaderProps) {
               />
             </svg>
           </div>
-          <h1 className="text-lg font-semibold tracking-tight text-slate-800">Hybrid RAG</h1>
+          <h1 className="text-lg font-semibold tracking-tight text-slate-800">
+            Hybrid Streaming Architecture
+          </h1>
         </div>
 
         <nav className="flex gap-4 ml-4">
