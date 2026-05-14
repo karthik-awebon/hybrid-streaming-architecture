@@ -24,6 +24,24 @@ export default function HomePage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full">
+            {/* Unified Smart Chat Card */}
+            <Link
+              href="/unified-rag"
+              className="group block bg-indigo-50 p-8 rounded-2xl shadow-sm border border-indigo-200 hover:shadow-md hover:border-indigo-400 transition-all md:col-span-2"
+            >
+              <h3 className="text-xl font-bold text-indigo-900 mb-2 group-hover:text-indigo-700 transition-colors flex items-center gap-2">
+                Unified Smart Chat (Recommended)
+              </h3>
+              <p className="text-sm text-indigo-700 mb-4">
+                Prioritizes fully local privacy and zero-cost inference, but automatically falls
+                back to Cloud AI if local context is insufficient or your device lacks WebGPU
+                support.
+              </p>
+              <div className="text-xs font-semibold uppercase tracking-wider text-indigo-600">
+                Try it out &rarr;
+              </div>
+            </Link>
+
             {/* Hybrid RAG Card */}
             <Link
               href="/hybrid-rag"

@@ -49,3 +49,36 @@
 
 - Local-Only Mode: Add a "Privacy Lock" toggle. When enabled, it strictly prevents any local document content from being
   sent to the server-side LLM, perhaps switching to a local LLM (like WebLLM/Wasm) for generation.
+  1. Smart Capability-Aware Routing (Unified Chat)
+     Instead of forcing users to choose between Local, Server, or Hybrid RAG pages, create a unified
+     <SmartChat> component.
+  - The Strategy: On mount, profile the user's device capabilities (e.g., checking navigator.gpu for
+    WebGPU support, checking memory).
+  - The Fallback Chain:
+    1.  Tier 1 (High-end devices): Default to fully Local RAG (WebLLM + Transformers.js + Orama) to
+        minimize cloud costs and guarantee privacy.
+    2.  Tier 2 (Mid-range devices): Fallback to Hybrid RAG (Local embeddings sent to Server for
+        Pinecone retrieval & OpenAI inference) if WebGPU is absent but WASM is supported.
+    3.  Tier 3 (Low-end/Mobile): Fallback to fully Server RAG if the device struggles with local
+        execution.
+  2. Embedding Fallback (Local → Server)
+     Currently, your useEmbedding hook (Transformers.js) and hybrid-rag fail if the local WebWorker
+     crashes or isn't supported.
+  - The Strategy: Update the generateEmbedding function in your hooks to act as a proxy.
+  - Implementation: Attempt to generate the embedding via the WebWorker. If it throws an error or
+    takes too long (timeout), catch the error and automatically fetch the embedding via a server API
+    endpoint (/api/embeddings using OpenAI).
+  3. Inference & Retrieval Fallback (Server → Local)
+     If your backend services go down (e.g., Pinecone is unreachable or OpenAI is rate-limiting you) or
+     the user loses their internet connection (offline mode).
+  - The Strategy: Leverage your local Orama database as an offline backup.
+  - Implementation: In useChatLogic.ts (Hybrid RAG), wrap the server POST /api/chat call in a
+    try/catch block. If the server request fails, automatically execute a local similarity search
+    via Orama and pass the context to WebLLM for a local response.
+  4. Mid-Stream Degradation
+     If the user is using fully Local RAG but WebLLM starts to thrash or fails to generate tokens due to
+     memory pressure mid-stream:
+  - The Strategy: Intercept the error in the useWebLLM hook.
+  - Implementation: Pause generation, log a warning to the user ("Local model ran out of memory,
+    switching to cloud..."), and send the conversation history to the server (/api/server-chat) to
+    seamlessly resume the response.
